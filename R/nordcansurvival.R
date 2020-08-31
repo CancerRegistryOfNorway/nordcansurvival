@@ -37,6 +37,14 @@ nordcanstat_survival <- function(
   stata_script_settings <- settings[["nordcanstat_survival_stata_script"]]
   do.call(nordcanstat_survival_stata_script, stata_script_settings)
 
+  # copy the stata programme itself into the working directory to be used
+  # by the just-generated script
+  src_file_dir <- paste0(system.file(package = "nordcansurvival"), "/stata/")
+  src_file_names <- dir(src_file_dir)
+  src_file_paths <- dir(src_file_dir, full.names = TRUE)
+  tgt_file_paths <- paste0(work_dir, "/", src_file_names)
+  file.copy(src_file_paths, tgt_file_paths, overwrite = TRUE)
+
   # write files that the stata script needs
   stata_script_input_file_path <- stata_script_settings[["input_file_path"]]
   data.table::fwrite(
