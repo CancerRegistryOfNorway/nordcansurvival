@@ -5,15 +5,15 @@
 
 nordcanstat_survival <- function(
   cancer_record_dataset,
-  stata_exe_path,
   population_mortality_dataset,
+  stata_exe_path,
   work_dir = tempdir()
 ) {
-  nordcancore::assert_is_processed_cancer_record_dataset(cancer_record_dataset)
+  # nordcancore::assert_is_processed_cancer_record_dataset(cancer_record_dataset)
   dbc::assert_file_exists(stata_exe_path)
-  nordcancore::assert_is_population_mortality_dataset(
-    population_mortality_dataset
-  )
+  # nordcancore::assert_is_population_mortality_dataset(
+  #   population_mortality_dataset
+  # )
   dbc::assert_dir_exists(work_dir)
 
   # settings are hardcoded into nordcancore or into this package (can also
@@ -47,8 +47,13 @@ nordcanstat_survival <- function(
 
   # write files that the stata script needs
   stata_script_input_file_path <- stata_script_settings[["input_file_path"]]
+  survival_cancer_record_dataset <- cancer_record_dataset[
+    cancer_record_dataset[["excl_surv_total"]] == 0L,
+    .SD,
+    .SDcols = nordcancore::nordcan_column_name_set("column_name_set_survival")
+  ]
   data.table::fwrite(
-    x = cancer_record_dataset,
+    x = survival_cancer_record_dataset,
     file = stata_script_input_file_path
   )
   stata_script_lifetable_file_path <- stata_script_settings[["lifetable_file_name"]]
