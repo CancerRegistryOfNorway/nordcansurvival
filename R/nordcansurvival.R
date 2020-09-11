@@ -50,7 +50,7 @@ nordcanstat_survival <- function(
   survival_cancer_record_dataset <- cancer_record_dataset[
     cancer_record_dataset[["excl_surv_total"]] == 0L,
     .SD,
-    .SDcols = nordcancore::nordcan_column_name_set("column_name_set_survival")
+    .SDcols = nordcancore::nordcan_metadata_column_name_set("column_name_set_survival")
   ]
   data.table::fwrite(
     x = survival_cancer_record_dataset,
