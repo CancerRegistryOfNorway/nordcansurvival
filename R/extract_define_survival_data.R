@@ -46,15 +46,28 @@ extract_define_survival_data <- function(incidence_data, surv_entities = NULL, s
   }
   
   
+  if (grepl(".csv$", incidence_data)) {
+    incidence_data_survival <- data.table::fread(incidence_data)
+    incidence_data_survival_columns <- nordcancore::nordcan_metadata_column_name_set("column_name_set_survival")
+    incidence_data_survival <- incidence_data_survival[incidence_data_survival[["excl_surv_total"]] == 0L, 
+                                                       incidence_data_survival_columns, with = FALSE] 
+    incidence_data <- gsub(".csv$", "_for_survival.csv", incidence_data)
+    data.table::fwrite(x = incidence_data_survival,  file = incidence_data, sep = ";")
+  } else if (grepl(".RData$", incidence_data)) {
+    load(incidence_data)
+    incidence_data_survival_columns <- nordcancore::nordcan_metadata_column_name_set("column_name_set_survival")
+    incidence_data_survival <- incidence_data_survival[incidence_data_survival[["excl_surv_total"]] == 0L, 
+                                                       incidence_data_survival_columns, with = FALSE] 
+    incidence_data <- gsub(".RData$", "_for_survival.csv", incidence_data)
+    data.table::fwrite(x = incidence_data_survival,  file = incidence_data, sep = ";")
+  } else if (grepl(".dta$", incidence_data)) {
+    ## User the dta file directly
+  } else {
+    stop("incidence_data must in .csv or .dta format. ")
+  }
 
   
-  incidence_data_survival <- data.table::fread(incidence_data)
-  incidence_data_survival_columns <- nordcancore::nordcan_metadata_column_name_set("column_name_set_survival")
-  incidence_data_survival <- incidence_data_survival[incidence_data_survival[["excl_surv_total"]] == 0L, 
-                                                     ..incidence_data_survival_columns] 
-    
-  incidence_data <- gsub(".csv$", "_for_survival.csv", "P:/Dataflyt/nordcan/NCI/INC.csv")
-  data.table::fwrite(x = incidence_data_survival,  file = incidence_data, sep = ";")
+
     
   
   surv_entities <- paste0(system.file(package = "nordcansurvival"), "/Stata/dta/NC_survival_entity_table.dta")
