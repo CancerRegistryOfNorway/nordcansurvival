@@ -1,7 +1,7 @@
 Package: nordcansurvival
 Type: Package
 Title: NORDCAN Survival Statistics
-Version: 0.1.0
+Version: 0.1.1
 Author: Huidong Tian
 Imports: 
     utils,

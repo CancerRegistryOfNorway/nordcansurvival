@@ -1,6 +1,6 @@
 
 
-stata_info <- function(stata_exe_path, work_dir) {
+stata_info <- function(stata_exe_path) {
   ## make template for Stata commad file
   dofile_template <-
     "
@@ -21,15 +21,15 @@ stata_info <- function(stata_exe_path, work_dir) {
   ## Check STATA/files exist or not;
 
   settings <- nordcan_survival_settings(
-    stata_exe_path = stata_exe_path, work_dir = work_dir
+    stata_exe_path = stata_exe_path
   )
   ado_dir <- settings[["ado_dir"]]
 
   dofile <- sprintf(
-    dofile_template, settings[["work_dir"]], ado_dir, ado_dir, ado_dir, ado_dir
+    dofile_template, settings[["survival_work_dir"]], ado_dir, ado_dir, ado_dir, ado_dir
   )
   
-  dofile_name <-  paste0(settings[["work_dir"]], "/get_stata_info.do")
+  dofile_name <-  paste0(settings[["survival_work_dir"]], "/get_stata_info.do")
   cat(dofile, file = dofile_name )
 
   ## comand line to run STATA on Windows or Linux OS;
@@ -40,7 +40,7 @@ stata_info <- function(stata_exe_path, work_dir) {
   system(CMD, wait = TRUE)
 
   ## Find the output, and print it to console.
-  info_path <- paste0(settings[["work_dir"]], "/get_stata_info.log")
+  info_path <- paste0(settings[["survival_work_dir"]], "/get_stata_info.log")
   for (i in 1 :100) {
     if (file.exists(info_path)) {
       stata_info <- readLines(info_path)

@@ -13,12 +13,13 @@ raise_internal_error <- function(...) {
 
 
 
-nordcan_survival_settings <- function(work_dir, stata_exe_path) {
-  dbc::assert_prod_input_dir_exists(work_dir)
+nordcan_survival_settings <- function(stata_exe_path) {
   dbc::assert_prod_input_is_one_of(
     stata_exe_path,
     funs = c("report_is_NULL", "report_file_exists")
   )
+  
+  survival_work_dir <- nordcancore::get_nordcan_settings()[["survival_work_dir"]]
   
   pkg_path <- system.file(package = "nordcansurvival")
   
@@ -58,17 +59,18 @@ nordcan_survival_settings <- function(work_dir, stata_exe_path) {
   }
   
   cancer_record_dataset_path <- paste0(
-    work_dir, "/cancer_record_dataset.csv"
+    survival_work_dir, "/cancer_record_dataset.csv"
   )
   national_population_life_table_path <- paste0(
-    work_dir, "/national_population_life_table.csv"
+    survival_work_dir, "/national_population_life_table.csv"
   )
   
   stata_output_file_path <- gsub(
     "\\..+$", "_Result.dta", basename(cancer_record_dataset_path)
   )
   
-  mget(c("work_dir", "stata_exe_path", "pkg_path", "entity_df_path", "ado_dir",
+  mget(c("survival_work_dir", "stata_exe_path", "pkg_path",
+         "entity_df_path", "ado_dir",
          "cancer_record_dataset_path", "national_population_life_table_path",
          "stata_output_file_path"))
 }

@@ -15,17 +15,12 @@
 #' @param stata_exe_path `[character]` (mandatory, no default)
 #' 
 #' full path to Stata executable
-#' @param work_dir `[character]` (mandatory, no default)
-#' 
-#' path to directory where Stata scripts and datasets will be stored
-#' for the duration of computing the statistics
 #' @export
 #' @importFrom foreign read.dta
 nordcanstat_survival <- function(
   cancer_record_dataset,
   national_population_life_table,
-  stata_exe_path,
-  work_dir
+  stata_exe_path
 ) {
   nordcanpreprocessing::assert_processed_cancer_record_dataset_is_valid(
     cancer_record_dataset
@@ -34,10 +29,8 @@ nordcanstat_survival <- function(
   nordcanpreprocessing::assert_national_population_life_table_is_valid(
     cancer_record_dataset
   )
-  dbc::assert_dir_exists(work_dir)
 
   settings <- nordcanstat_survival_settings(
-    work_dir = work_dir,
     stata_exe_path = stata_exe_path
   )
   
@@ -47,7 +40,7 @@ nordcanstat_survival <- function(
   # by the just-generated script
   src_file_dir <- settings[["pkg_stata_script_dir"]]
   src_file_paths <- dir(src_file_dir, full.names = TRUE, recursive = TRUE)
-  tgt_file_paths <- paste0(work_dir, "/", src_file_names)
+  tgt_file_paths <- paste0(settings[["survival_work_dir"]], "/", src_file_names)
   file.copy(src_file_paths, tgt_file_paths, overwrite = TRUE)
 
   # write files that the stata script needs
@@ -66,17 +59,15 @@ nordcanstat_survival <- function(
     x = national_population_life_table,
     file = settings[["national_population_life_table_path"]]
   )
-
+  
   # retrieve basic information about stata -------------------------------------
   stata_info_output <- stata_info(
-    work_dir = work_dir,
     stata_exe_path = stata_exe_path
   )
   
   # define the dataset using a stata script ------------------------------------
   stata_extract_define_survival_data(
     cancer_record_dataset_path = settings[["cancer_record_dataset_path"]], 
-    work_dir = settings[["work_dir"]], 
     stata_exe_path = settings[["stata_exe_path"]]
   )
   
@@ -84,7 +75,6 @@ nordcanstat_survival <- function(
   stata_survival_statistics(
     stata_exe_path =  settings[["stata_exe_path"]],
     cancer_record_dataset_path = settings[["cancer_record_dataset_path"]],
-    work_dir = settings[["work_dir"]],
     national_population_life_table_path = settings[["national_population_life_table_path"]],
     estimand = "netsurvival"
   )

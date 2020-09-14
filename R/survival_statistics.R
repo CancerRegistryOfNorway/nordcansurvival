@@ -3,7 +3,6 @@
 stata_survival_statistics <- function(
   stata_exe_path = NULL,
   cancer_record_dataset_path,
-  work_dir,
   national_population_life_table_path,
   estimand = "netsurvival"
 ) {
@@ -32,8 +31,7 @@ stata_survival_statistics <- function(
     "
 
   settings <- nordcan_survival_settings(
-    stata_exe_path = stata_exe_path,
-    work_dir = work_dir
+    stata_exe_path = stata_exe_path
   )
   
 
@@ -47,11 +45,11 @@ stata_survival_statistics <- function(
   }
   
   output_file_path <- settings[["stata_output_file_path"]]
-
+  survival_work_dir <- settings[["survival_work_dir"]]
   ## build do file based on 'dofile_template';
   ado_dir <- settings[["ado_dir"]]
   dofile_contents <- sprintf( dofile_template,
-                              work_dir,
+                              survival_work_dir,
                               ado_dir, ado_dir, ado_dir, ado_dir,
                               cancer_record_dataset_path,
                               output_file_path,
@@ -60,7 +58,7 @@ stata_survival_statistics <- function(
   )
   
   ## save the  do file
-  dofile_name <- paste0(work_dir, "/survival_statistics.do")
+  dofile_name <- paste0(survival_work_dir, "/survival_statistics.do")
   cat(dofile_contents, file = dofile_name)
 
   ## comand line to run STATA on Windows or Linux OS;
