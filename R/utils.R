@@ -1,6 +1,5 @@
 
 
-
 call_stata_script <- function(
   stata_exe_path,
   stata_script_path

@@ -49,10 +49,10 @@ stata_extract_define_survival_data <- function(
                               entities
   )
   
-  
   ## save the  do file
-  
-  dofile_name <- paste0(settings[["survival_work_dir"]], "/extract_define_survival_data.do")
+  dofile_name <- paste0(
+    settings[["survival_work_dir"]], "/extract_define_survival_data.do"
+  )
   cat(dofile_contents, file = dofile_name)
   
   ## Run command
