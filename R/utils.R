@@ -1,6 +1,16 @@
 
 
 
+#' @importFrom utils maintainer
+raise_internal_error <- function(...) {
+  stop(
+    "Internal error: ",
+    ..., 
+    "; if you see this error, please report it to the package maintainer ",
+    utils::maintainer("nordcansurvival")
+  )
+}
+
 
 
 nordcan_survival_settings <- function(work_dir, stata_exe_path) {
@@ -11,6 +21,13 @@ nordcan_survival_settings <- function(work_dir, stata_exe_path) {
   )
   
   pkg_path <- system.file(package = "nordcansurvival")
+  
+  pkg_stata_script_dir <- paste0(pkg_path, "/stata/")
+  if (!dir.exists(pkg_stata_script_dir)) {
+    raise_internal_error(
+      "no such directory: ", deparse(pkg_stata_script_dir)
+    )
+  }
   
   stata_path_cache_file_path <- paste0(pkg_path, "/stata/stata_path_cache.rds")
   if (is.null(stata_exe_path)) {
@@ -28,12 +45,16 @@ nordcan_survival_settings <- function(work_dir, stata_exe_path) {
   }
   
   entity_df_path <- paste0(pkg_path, "/stata/dta/NC_survival_entity_table.dta")
-  if (!file.exists(entity_df)) {
-    stop("Internal error: no such file: ", deparse(entity_df_path))
+  if (!file.exists(entity_df_path)) {
+    raise_internal_error(
+      "no such file: ", deparse(entity_df_path)
+    )
   }
   ado_dir <- paste0(pkg_path, "/stata/ado")
   if (!dir.exists(ado_dir)) {
-    stop("Internal error: no such dir: ", deparse(ado_dir))
+    raise_internal_error(
+      "no such dir: ", deparse(ado_dir)
+    )
   }
   
   cancer_record_dataset_path <- paste0(

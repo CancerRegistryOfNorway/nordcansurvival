@@ -21,7 +21,6 @@
 #' for the duration of computing the statistics
 #' @export
 #' @importFrom foreign read.dta
-#' @importFrom utils maintainer
 nordcanstat_survival <- function(
   cancer_record_dataset,
   national_population_life_table,
@@ -46,7 +45,7 @@ nordcanstat_survival <- function(
   # prepare working directory contents -----------------------------------------
   # copy the stata programme itself into the working directory to be used
   # by the just-generated script
-  src_file_dir <- paste0(settings[["pkg_path"]], "/stata/")
+  src_file_dir <- settings[["pkg_stata_script_dir"]]
   src_file_paths <- dir(src_file_dir, full.names = TRUE, recursive = TRUE)
   tgt_file_paths <- paste0(work_dir, "/", src_file_names)
   file.copy(src_file_paths, tgt_file_paths, overwrite = TRUE)
@@ -96,10 +95,10 @@ nordcanstat_survival <- function(
     output_file_ext,
     csv = data.table::fread(file = settings[["stata_output_file_path"]]),
     dta = foreign::read.dta(file = settings[["stata_output_file_path"]]),
-    stop("Internal error: no read function defined for output with ",
-         "file extension ", deparse(output_file_ext), "; if you see this ",
-         "error, please report it to the package maintainer ",
-         utils::maintainer("nordcansurvival"))
+    raise_internal_error(
+      "no read function defined for output with file extension ",
+      deparse(output_file_ext)
+    )
   )
   
   # final touches --------------------------------------------------------------

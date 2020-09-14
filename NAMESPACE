@@ -2,3 +2,4 @@
 
 export(nordcanstat_survival)
 importFrom(foreign,read.dta)
+importFrom(utils,maintainer)
