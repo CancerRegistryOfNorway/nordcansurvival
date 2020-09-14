@@ -17,7 +17,7 @@ get_stata_info <- function(stata = NULL) {
     "
 
   ## Check STATA/files exist or not;
-  path_stata <- paste0(system.file(package = "nordcansurvival"), "/Stata/path_stata.RData")
+  path_stata <- paste0(system.file(package = "nordcansurvival"), "/stata/path_stata.RData")
 
   if (is.null(stata)) {
     if (file.exists(path_stata)) {
@@ -36,7 +36,7 @@ get_stata_info <- function(stata = NULL) {
 
 
   wd <- getwd()
-  dir_ado <- paste0(system.file(package = "nordcansurvival"), "/Stata/ado")
+  dir_ado <- paste0(system.file(package = "nordcansurvival"), "/stata/ado")
 
   dofile <- sprintf( dofile_template, wd, dir_ado, dir_ado, dir_ado, dir_ado)
 

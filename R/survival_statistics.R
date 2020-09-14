@@ -45,7 +45,7 @@ survival_statistics <- function(
     "
 
   ## Check STATA/files exist or not;
-  path_stata <- paste0(system.file(package = "nordcansurvival"), "/Stata/path_stata.RData")
+  path_stata <- paste0(system.file(package = "nordcansurvival"), "/stata/path_stata.RData")
 
   if (is.null(stata)) {
     if (file.exists(path_stata)) {
@@ -85,7 +85,7 @@ survival_statistics <- function(
   wd <- getwd()
   outfile <- gsub(".dta", "_Result.dta", basename(infile))
 
-  dir_ado <- paste0(system.file(package = "nordcansurvival"), "/Stata/ado")
+  dir_ado <- paste0(system.file(package = "nordcansurvival"), "/stata/ado")
 
   ## build do file based on 'dofile_template';
 

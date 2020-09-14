@@ -23,7 +23,7 @@ extract_define_survival_data <- function(incidence_data, surv_entities = NULL, s
     "
   
   ## Check STATA/files exist or not;
-  path_stata <- paste0(system.file(package = "nordcansurvival"), "/Stata/path_stata.RData")
+  path_stata <- paste0(system.file(package = "nordcansurvival"), "/stata/path_stata.RData")
   
   if (is.null(stata)) {
     if (file.exists(path_stata)) {
@@ -70,14 +70,14 @@ extract_define_survival_data <- function(incidence_data, surv_entities = NULL, s
 
     
   
-  surv_entities <- paste0(system.file(package = "nordcansurvival"), "/Stata/dta/NC_survival_entity_table.dta")
+  surv_entities <- paste0(system.file(package = "nordcansurvival"), "/stata/dta/NC_survival_entity_table.dta")
   if (!file.exists(surv_entities)) {
     stop(sprintf("Can not find 'surv_entities': %s !", surv_entities))
   }
 
   wd <- getwd()
   
-  dir_ado <- paste0(system.file(package = "nordcansurvival"), "/Stata/ado")
+  dir_ado <- paste0(system.file(package = "nordcansurvival"), "/stata/ado")
   
   survival_file_base <- paste0(wd, "/survival_file_base.dta")
   survival_file_analysis <- paste0(wd, "/survival_file_analysis.dta")
