@@ -61,12 +61,11 @@ stata_survival_statistics <- function(
   dofile_name <- paste0(survival_work_dir, "/survival_statistics.do")
   cat(dofile_contents, file = dofile_name)
 
-  ## comand line to run STATA on Windows or Linux OS;
-  flag <- ifelse(.Platform$OS.type[1] == "windows", "/e", "-b")
-  CMD <- sprintf("%s %s %s", settings[["stata_exe_path"]], flag , dofile_name)
-
   ## Run command
-  system(CMD,  wait = TRUE)
+  call_stata_script(
+    stata_exe_path = settings[["stata_exe_path"]], 
+    stata_script_path = dofile_name
+  )
 }
 
 

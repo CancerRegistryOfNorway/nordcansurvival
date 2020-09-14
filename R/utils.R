@@ -5,9 +5,23 @@ call_stata_script <- function(
   stata_exe_path,
   stata_script_path
 ) {
-  flag <- ifelse(.Platform$OS.type[1] == "windows", "/e", "-b")
+  dbc::assert_prod_input_file_exists(stata_exe_path)
+  dbc::assert_prod_input_file_exists(stata_script_path)
+  
+  os <- .Platform$OS.type[1] == "windows"
+  flag <- ifelse(os, "/e", "-b")
   settings <- nordcan_survival_settings(stata_exe_path = stata_exe_path)
   
+  # changing work directory appears to be necessary to ensure that results 
+  # appear in the intended folder; we set the wd temporarily to that of the
+  # survival results for robustness
+  old_wd <- getwd()
+  on.exit({
+    setwd(old_wd)
+  })
+  setwd(settings[["survival_work_dir"]])
+  
+  dir_of_stata_script <- dirname(stata_script_path)
   # protect in case of whitespaces in path
   stata_exe_path <- normalizePath(settings[["stata_exe_path"]])
   stata_exe_path <- paste0("\"", stata_exe_path, "\"")
