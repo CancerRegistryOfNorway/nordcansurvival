@@ -4,6 +4,7 @@ Title: NORDCAN Survival Statistics
 Version: 0.1.0
 Author: Huidong Tian
 Imports: 
+    utils,
     foreign,
     data.table,
     dbc,

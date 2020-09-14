@@ -21,6 +21,7 @@
 #' for the duration of computing the statistics
 #' @export
 #' @importFrom foreign read.dta
+#' @importFrom utils maintainer
 nordcanstat_survival <- function(
   cancer_record_dataset,
   national_population_life_table,
@@ -94,7 +95,11 @@ nordcanstat_survival <- function(
   output <- switch(
     output_file_ext,
     csv = data.table::fread(file = settings[["stata_output_file_path"]]),
-    dta = foreign::read.dta(file = settings[["stata_output_file_path"]])
+    dta = foreign::read.dta(file = settings[["stata_output_file_path"]]),
+    stop("Internal error: no read function defined for output with ",
+         "file extension ", deparse(output_file_ext), "; if you see this ",
+         "error, please report it to the package maintainer ",
+         utils::maintainer("nordcansurvival"))
   )
   
   # final touches --------------------------------------------------------------
