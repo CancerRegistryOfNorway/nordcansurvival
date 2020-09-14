@@ -1,10 +1,12 @@
 
-extract_define_survival_data <- function(
+stata_extract_define_survival_data <- function(
   cancer_record_dataset_path, 
   work_dir,
   stata_exe_path = NULL
 ) {
-  dbc::assert_prod_input_file_exists(cancer_record_dataset_path)
+  nordcanpreprocessing::assert_processed_cancer_record_dataset_is_valid(
+    cancer_record_dataset
+  )
   settings <- nordcan_survival_settings(
     work_dir = work_dir, stata_exe_path = stata_exe_path
   )
@@ -31,26 +33,6 @@ extract_define_survival_data <- function(
     "
   
   
-  if (grepl(".csv$", cancer_record_dataset_path)) {
-    incidence_data_survival <- data.table::fread(cancer_record_dataset_path)
-    incidence_data_survival_columns <- nordcancore::nordcan_metadata_column_name_set("column_name_set_survival")
-    incidence_data_survival <- incidence_data_survival[incidence_data_survival[["excl_surv_total"]] == 0L, 
-                                                       incidence_data_survival_columns, with = FALSE] 
-    incidence_data <- gsub(".csv$", "_for_survival.csv", cancer_record_dataset_path)
-    data.table::fwrite(x = incidence_data_survival,  file = cancer_record_dataset_path, sep = ";")
-  } else if (grepl(".RData$", cancer_record_dataset_path)) {
-    load(cancer_record_dataset_path)
-    incidence_data_survival_columns <- nordcancore::nordcan_metadata_column_name_set("column_name_set_survival")
-    incidence_data_survival <- incidence_data_survival[incidence_data_survival[["excl_surv_total"]] == 0L, 
-                                                       incidence_data_survival_columns, with = FALSE] 
-    incidence_data <- gsub(".RData$", "_for_survival.csv", cancer_record_dataset_path)
-    data.table::fwrite(x = incidence_data_survival,  file = cancer_record_dataset_path, sep = ";")
-  } else if (grepl(".dta$", cancer_record_dataset_path)) {
-    ## User the .dta file directly
-  } else {
-    stop("incidence_data must in .csv/.RData/.dta format. ")
-  }
-  
   entity_df_path <- settings[["entity_df_path"]]
   
   ado_dir <- settings[["ado_dir"]]
@@ -59,24 +41,24 @@ extract_define_survival_data <- function(
   survival_file_analysis <- paste0(work_dir, "/survival_file_analysis.dta")
   
   ## build do file based on 'dofile_template';
-  dofile <- sprintf( dofile_template,
-                     work_dir,
-                     ado_dir,ado_dir,ado_dir,ado_dir,
-                     cancer_record_dataset_path,
-                     survival_file_base,
-                     survival_file_analysis,
-                     entities
+  dofile_contents <- sprintf( dofile_template,
+                              work_dir,
+                              ado_dir,ado_dir,ado_dir,ado_dir,
+                              cancer_record_dataset_path,
+                              survival_file_base,
+                              survival_file_analysis,
+                              entities
   )
   
   
   ## save the  do file
   
   dofile_name <- paste0(work_dir, "/extract_define_survival_data.do")
-  cat(dofile, file = dofile_name)
+  cat(dofile_contents, file = dofile_name)
   
   ## comand line to run STATA on Windows or Linux OS;
   flag <- ifelse(.Platform$OS.type[1] == "windows", "/e", "-b")
-  CMD <- sprintf("%s %s %s", stata_exe_path, flag , dofile_name)
+  CMD <- sprintf("%s %s %s", settings[["stata_exe_path"]], flag , dofile_name)
   
   ## Run command
   system(CMD,  wait = TRUE)

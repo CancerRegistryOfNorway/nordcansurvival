@@ -36,7 +36,20 @@ nordcan_survival_settings <- function(work_dir, stata_exe_path) {
     stop("Internal error: no such dir: ", deparse(ado_dir))
   }
   
-  mget(c("work_dir", "stata_exe_path", "pkg_path", "entity_df_path", "ado_dir"))
+  cancer_record_dataset_path <- paste0(
+    work_dir, "/cancer_record_dataset.csv"
+  )
+  national_population_life_table_path <- paste0(
+    work_dir, "/national_population_life_table.csv"
+  )
+  
+  stata_output_file_path <- gsub(
+    "\\..+$", "_Result.dta", basename(cancer_record_dataset_path)
+  )
+  
+  mget(c("work_dir", "stata_exe_path", "pkg_path", "entity_df_path", "ado_dir",
+         "cancer_record_dataset_path", "national_population_life_table_path",
+         "stata_output_file_path"))
 }
 
 
