@@ -16,7 +16,7 @@
 #' 
 #' full path to Stata executable
 #' @export
-#' @importFrom foreign read.dta
+#' @importFrom data.table .SD
 nordcanstat_survival <- function(
   cancer_record_dataset,
   national_population_life_table,
@@ -81,15 +81,7 @@ nordcanstat_survival <- function(
   
   # the stata script has written its output into a new file. read it into R ----
   output_file_ext <- gsub(".+\\.", "", settings[["survival_output_file_path"]])
-  output <- switch(
-    output_file_ext,
-    csv = data.table::fread(file = settings[["survival_output_file_path"]]),
-    dta = foreign::read.dta(file = settings[["survival_output_file_path"]]),
-    raise_internal_error(
-      "no read function defined for output with file extension ",
-      deparse(output_file_ext)
-    )
-  )
+  output <- data.table::fread(file = settings[["survival_output_file_path"]])
   
   # final touches --------------------------------------------------------------
   return(list(output = output, info = stata_info_output))
