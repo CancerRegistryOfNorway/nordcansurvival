@@ -1,6 +1,6 @@
 
 
-get_stata_info <- function(stata_exe_path, work_dir) {
+stata_info <- function(stata_exe_path, work_dir) {
   ## make template for Stata commad file
   dofile_template <-
     "

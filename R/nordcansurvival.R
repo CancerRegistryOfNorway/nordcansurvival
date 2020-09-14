@@ -67,6 +67,12 @@ nordcanstat_survival <- function(
     file = settings[["national_population_life_table_path"]]
   )
 
+  # retrieve basic information about stata -------------------------------------
+  stata_info_output <- stata_info(
+    work_dir = work_dir,
+    stata_exe_path = stata_exe_path
+  )
+  
   # define the dataset using a stata script ------------------------------------
   stata_extract_define_survival_data(
     cancer_record_dataset_path = settings[["cancer_record_dataset_path"]], 
@@ -85,12 +91,14 @@ nordcanstat_survival <- function(
   
   # the stata script has written its output into a new file. read it into R ----
   output_file_ext <- gsub(".+\\.", "", settings[["stata_output_file_path"]])
-  results <- switch(
+  output <- switch(
     output_file_ext,
     csv = data.table::fread(file = settings[["stata_output_file_path"]]),
     dta = foreign::read.dta(file = settings[["stata_output_file_path"]])
   )
-  return(results)
+  
+  # final touches --------------------------------------------------------------
+  return(list(output = output, info = stata_info_output))
 }
 
 
