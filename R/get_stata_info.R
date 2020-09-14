@@ -19,7 +19,6 @@ stata_info <- function(stata_exe_path) {
     "
 
   ## Check STATA/files exist or not;
-
   settings <- nordcan_survival_settings(
     stata_exe_path = stata_exe_path
   )
@@ -31,25 +30,29 @@ stata_info <- function(stata_exe_path) {
   
   dofile_name <-  paste0(settings[["survival_work_dir"]], "/get_stata_info.do")
   cat(dofile, file = dofile_name )
-
-  ## comand line to run STATA on Windows or Linux OS;
-  flag <- ifelse(.Platform$OS.type[1] == "windows", "/e", "-b")
-  CMD <- sprintf("%s %s %s", stata_exe_path, flag , dofile_name)
-
+  
   ## Run command
-  system(CMD, wait = TRUE)
-
+  call_stata_script(
+    stata_exe_path = settings[["stata_exe_path"]], 
+    stata_script_path = dofile_name
+  )
+  
   ## Find the output, and print it to console.
   info_path <- paste0(settings[["survival_work_dir"]], "/get_stata_info.log")
-  for (i in 1 :100) {
+  for (i in 1:10) {
     if (file.exists(info_path)) {
-      stata_info <- readLines(info_path)
+      stata_info_output <- readLines(info_path)
       break()
     }
     Sys.sleep(0.5)
   }
+  if (!exists("stata_info_output")) {
+    raise_internal_error(
+      "could not create info_path = ", deparse(info_path)
+    )
+  }
 
-  return(stata_info)
+  return(stata_info_output)
 }
 
 

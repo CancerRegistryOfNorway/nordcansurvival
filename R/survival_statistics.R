@@ -44,7 +44,7 @@ stata_survival_statistics <- function(
                  national_population_life_table_path))
   }
   
-  output_file_path <- settings[["stata_output_file_path"]]
+  output_file_path <- settings[["survival_output_file_path"]]
   survival_work_dir <- settings[["survival_work_dir"]]
   ## build do file based on 'dofile_template';
   ado_dir <- settings[["ado_dir"]]

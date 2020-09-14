@@ -80,11 +80,11 @@ nordcanstat_survival <- function(
   )
   
   # the stata script has written its output into a new file. read it into R ----
-  output_file_ext <- gsub(".+\\.", "", settings[["stata_output_file_path"]])
+  output_file_ext <- gsub(".+\\.", "", settings[["survival_output_file_path"]])
   output <- switch(
     output_file_ext,
-    csv = data.table::fread(file = settings[["stata_output_file_path"]]),
-    dta = foreign::read.dta(file = settings[["stata_output_file_path"]]),
+    csv = data.table::fread(file = settings[["survival_output_file_path"]]),
+    dta = foreign::read.dta(file = settings[["survival_output_file_path"]]),
     raise_internal_error(
       "no read function defined for output with file extension ",
       deparse(output_file_ext)
