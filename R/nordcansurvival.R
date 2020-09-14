@@ -5,37 +5,28 @@
 
 nordcanstat_survival <- function(
   cancer_record_dataset,
-  population_mortality_dataset,
+  national_population_life_table,
   stata_exe_path,
-  work_dir = tempdir()
+  work_dir
 ) {
-  # nordcancore::assert_is_processed_cancer_record_dataset(cancer_record_dataset)
+  nordcanpreprocessing::assert_processed_cancer_record_dataset_is_valid(
+    cancer_record_dataset
+  )
   dbc::assert_file_exists(stata_exe_path)
-  # nordcancore::assert_is_population_mortality_dataset(
-  #   population_mortality_dataset
-  # )
+  nordcanpreprocessing::assert_national_population_life_table_is_valid(
+    cancer_record_dataset
+  )
   dbc::assert_dir_exists(work_dir)
 
-  # settings are hardcoded into nordcancore or into this package (can also
-  # contain lookup tables from either package); object 'settings' will be a list
-  # of lists, one list for each function called here
   settings <- nordcanstat_survival_settings(
     work_dir = work_dir,
     stata_exe_path = stata_exe_path
   )
 
-  # any modification of data, including definition of follow-up time etc,,
-  # if necessary; instead of having a function called `prep_settings`, I don't
-  # mind if it has a different name or if there are actually multiple
-  # functions called here.
   prep_settings <- settings[["prepare_survival_dataset"]]
   prep_arg_list <- c(list(cancer_record_dataset = cancer_record_dataset),
                      prep_settings)
   crd <- do.call(prepare_survival_dataset, prep_arg_list)
-
-  # create a stata script for making the stata call
-  stata_script_settings <- settings[["nordcanstat_survival_stata_script"]]
-  do.call(nordcanstat_survival_stata_script, stata_script_settings)
 
   # copy the stata programme itself into the working directory to be used
   # by the just-generated script

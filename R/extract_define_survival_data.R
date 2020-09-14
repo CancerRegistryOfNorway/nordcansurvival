@@ -1,7 +1,15 @@
 
-extract_define_survival_data <- function(incidence_data, surv_entities = NULL, stata = NULL) {
+extract_define_survival_data <- function(
+  cancer_record_dataset_path, 
+  work_dir,
+  stata_exe_path = NULL
+) {
+  dbc::assert_prod_input_file_exists(cancer_record_dataset_path)
+  settings <- nordcan_survival_settings(
+    work_dir = work_dir, stata_exe_path = stata_exe_path
+  )
   
-  ## make template for Stata commad file
+  ## make template for Stata command file
   dofile_template <-
     "
     cd %s                // set current working directory
@@ -22,85 +30,53 @@ extract_define_survival_data <- function(incidence_data, surv_entities = NULL, s
 
     "
   
-  ## Check STATA/files exist or not;
-  path_stata <- paste0(system.file(package = "nordcansurvival"), "/stata/path_stata.RData")
   
-  if (is.null(stata)) {
-    if (file.exists(path_stata)) {
-      load(path_stata)
-    } else {
-      stop("User must give the path of STATA")
-    }
-  } else {
-    if (!file.exists(stata)) {
-      stop(sprintf("Can not find Stata software: %s!", stata))
-    } else {
-      # save the path of stata to installed package, so  user don't need to specify it everytime.
-      save(stata, file = path_stata)
-    }
-  }
-  
-  
-  if (!file.exists(incidence_data)) {
-    stop(sprintf("Can not find 'incidence_data': %s !", incidence_data))
-  }
-  
-  
-  if (grepl(".csv$", incidence_data)) {
-    incidence_data_survival <- data.table::fread(incidence_data)
+  if (grepl(".csv$", cancer_record_dataset_path)) {
+    incidence_data_survival <- data.table::fread(cancer_record_dataset_path)
     incidence_data_survival_columns <- nordcancore::nordcan_metadata_column_name_set("column_name_set_survival")
     incidence_data_survival <- incidence_data_survival[incidence_data_survival[["excl_surv_total"]] == 0L, 
                                                        incidence_data_survival_columns, with = FALSE] 
-    incidence_data <- gsub(".csv$", "_for_survival.csv", incidence_data)
-    data.table::fwrite(x = incidence_data_survival,  file = incidence_data, sep = ";")
-  } else if (grepl(".RData$", incidence_data)) {
-    load(incidence_data)
+    incidence_data <- gsub(".csv$", "_for_survival.csv", cancer_record_dataset_path)
+    data.table::fwrite(x = incidence_data_survival,  file = cancer_record_dataset_path, sep = ";")
+  } else if (grepl(".RData$", cancer_record_dataset_path)) {
+    load(cancer_record_dataset_path)
     incidence_data_survival_columns <- nordcancore::nordcan_metadata_column_name_set("column_name_set_survival")
     incidence_data_survival <- incidence_data_survival[incidence_data_survival[["excl_surv_total"]] == 0L, 
                                                        incidence_data_survival_columns, with = FALSE] 
-    incidence_data <- gsub(".RData$", "_for_survival.csv", incidence_data)
-    data.table::fwrite(x = incidence_data_survival,  file = incidence_data, sep = ";")
-  } else if (grepl(".dta$", incidence_data)) {
-    ## User the dta file directly
+    incidence_data <- gsub(".RData$", "_for_survival.csv", cancer_record_dataset_path)
+    data.table::fwrite(x = incidence_data_survival,  file = cancer_record_dataset_path, sep = ";")
+  } else if (grepl(".dta$", cancer_record_dataset_path)) {
+    ## User the .dta file directly
   } else {
-    stop("incidence_data must in .csv or .dta format. ")
+    stop("incidence_data must in .csv/.RData/.dta format. ")
   }
-
   
-
-    
+  entity_df_path <- settings[["entity_df_path"]]
   
-  surv_entities <- paste0(system.file(package = "nordcansurvival"), "/stata/dta/NC_survival_entity_table.dta")
-  if (!file.exists(surv_entities)) {
-    stop(sprintf("Can not find 'surv_entities': %s !", surv_entities))
-  }
-
-  wd <- getwd()
+  ado_dir <- settings[["ado_dir"]]
   
-  dir_ado <- paste0(system.file(package = "nordcansurvival"), "/stata/ado")
-  
-  survival_file_base <- paste0(wd, "/survival_file_base.dta")
-  survival_file_analysis <- paste0(wd, "/survival_file_analysis.dta")
+  survival_file_base <- paste0(work_dir, "/survival_file_base.dta")
+  survival_file_analysis <- paste0(work_dir, "/survival_file_analysis.dta")
   
   ## build do file based on 'dofile_template';
   dofile <- sprintf( dofile_template,
-                     wd,
-                     dir_ado,dir_ado,dir_ado,dir_ado,
-                     incidence_data,
+                     work_dir,
+                     ado_dir,ado_dir,ado_dir,ado_dir,
+                     cancer_record_dataset_path,
                      survival_file_base,
                      survival_file_analysis,
-                     surv_entities
+                     entities
   )
   
   
   ## save the  do file
   
-  dofile_name <- paste0(wd, "/extract_define_survival_data.do")
+  dofile_name <- paste0(work_dir, "/extract_define_survival_data.do")
   cat(dofile, file = dofile_name)
   
   ## comand line to run STATA on Windows or Linux OS;
   flag <- ifelse(.Platform$OS.type[1] == "windows", "/e", "-b")
-  CMD <- sprintf("%s %s %s", stata, flag , dofile_name)
+  CMD <- sprintf("%s %s %s", stata_exe_path, flag , dofile_name)
   
   ## Run command
   system(CMD,  wait = TRUE)

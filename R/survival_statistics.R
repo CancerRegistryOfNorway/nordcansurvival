@@ -1,10 +1,10 @@
 
 #' Title
 #'
-#' @param stata
-#' @param infile
-#' @param outfile
-#' @param lifetable
+#' @param stata_exe_path
+#' @param cancer_record_dataset_path
+#' @param output_file_path
+#' @param national_population_life_table_path
 #' @param estimand
 #'
 #' @return
@@ -14,13 +14,12 @@
 #'
 
 survival_statistics <- function(
-
-  stata = NULL,
-  infile,
-  outfile = NULL,
-  lifetable,
+  stata_exe_path = NULL,
+  cancer_record_dataset_path,
+  work_dir,
+  output_file_path = NULL,
+  national_population_life_table_path,
   estimand = "netsurvival"
-
 ) {
 
   ## make template for Stata commad file
@@ -44,69 +43,58 @@ survival_statistics <- function(
 
     "
 
+  settings <- nordcan_survival_settings(
+    stata_exe_path = stata_exe_path,
+    work_dir = work_dir
+  )
+  
   ## Check STATA/files exist or not;
   path_stata <- paste0(system.file(package = "nordcansurvival"), "/stata/path_stata.RData")
 
-  if (is.null(stata)) {
+  if (is.null(stata_exe_path)) {
     if (file.exists(path_stata)) {
       load(path_stata)
     } else {
       stop("User must give the path of STATA")
     }
   } else {
-    if (!file.exists(stata)) {
-      stop(sprintf("Can not find Stata software: %s!", stata))
+    if (!file.exists(stata_exe_path)) {
+      stop(sprintf("Can not find Stata software: %s!", stata_exe_path))
     } else {
       # save the path of stata to installed package, so  user don't need to specify it everytime.
-      save(stata, file = path_stata)
+      save(stata_exe_path, file = path_stata)
     }
   }
 
 
-  if (!file.exists(infile)) {
-    stop(sprintf("Can not find 'infile': %s !", infile))
+  if (!file.exists(cancer_record_dataset_path)) {
+    stop(sprintf("Can not find 'cancer_record_dataset_path': %s !", cancer_record_dataset_path))
   }
-  if (!file.exists(lifetable)) {
-    stop(sprintf("Can not find 'lifetable': %s !", lifetable))
+  if (!file.exists(national_population_life_table_path)) {
+    stop(sprintf("Can not find 'national_population_life_table_path': %s !", national_population_life_table_path))
   }
-  if (!is.null(outfile)) {
-    if (!dir.exists(outfile)) {
-      stop(sprintf("Directory %s is not exist!", outfile))
-    }
-  }
-
-  ## set work directory;
-  # if (is.null(outfile)) {
-  #   wd <- dirname(infile)
-  #   outfile <- gsub(".dta", "_Result.dta", basename(infile))
-  # } else {
-  #   wd <- dirname(outfile)
-  # }
-  wd <- getwd()
-  outfile <- gsub(".dta", "_Result.dta", basename(infile))
+  
+  output_file_path <- gsub(".dta", "_Result.dta", basename(cancer_record_dataset_path))
 
   dir_ado <- paste0(system.file(package = "nordcansurvival"), "/stata/ado")
 
   ## build do file based on 'dofile_template';
-
-  dofile <- sprintf( dofile_template,
-                     wd,
-                     dir_ado,dir_ado,dir_ado,dir_ado,
-                     infile,
-                     outfile,
-                     lifetable,
-                     estimand
+  dofile_contents <- sprintf( dofile_template,
+                              work_dir,
+                              dir_ado,dir_ado,dir_ado,dir_ado,
+                              cancer_record_dataset_path,
+                              output_file_path,
+                              national_population_life_table_path,
+                              estimand
   )
-
-
+  
   ## save the  do file
-
-  dofile_name <- paste0(wd, "/survival_statistics.do")
-  cat(dofile, file = dofile_name)
+  dofile_name <- paste0(work_dir, "/survival_statistics.do")
+  cat(dofile_contents, file = dofile_name)
 
   ## comand line to run STATA on Windows or Linux OS;
   flag <- ifelse(.Platform$OS.type[1] == "windows", "/e", "-b")
-  CMD <- sprintf("%s %s %s", stata, flag , dofile_name)
+  CMD <- sprintf("%s %s %s", stata_exe_path, flag , dofile_name)
 
   ## Run command
   system(CMD,  wait = TRUE)
