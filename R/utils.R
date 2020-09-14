@@ -19,7 +19,7 @@ nordcan_survival_settings <- function(stata_exe_path) {
     funs = c("report_is_NULL", "report_file_exists")
   )
   
-  survival_work_dir <- nordcancore::get_nordcan_settings()[["survival_work_dir"]]
+  survival_work_dir <- nordcancore::get_global_nordcan_settings()[["survival_work_dir"]]
   
   pkg_path <- system.file(package = "nordcansurvival")
   
