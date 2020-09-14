@@ -1,17 +1,4 @@
 
-#' Title
-#'
-#' @param stata_exe_path
-#' @param cancer_record_dataset_path
-#' @param output_file_path
-#' @param national_population_life_table_path
-#' @param estimand
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
 
 stata_survival_statistics <- function(
   stata_exe_path = NULL,

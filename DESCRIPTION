@@ -1,16 +1,16 @@
 Package: nordcansurvival
 Type: Package
-Title: What the Package Does (Title Case)
+Title: NORDCAN Survival Statistics
 Version: 0.1.0
-Author: Who wrote it
+Author: Huidong Tian
 Imports: 
     foreign,
     data.table,
     dbc,
     nordcancore
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Maintainer: Huidong Tian <huidon.tian@kankerregistret.no>
+Description: Enables computing survival statistics as per NORDCAN 
+    specifications.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true

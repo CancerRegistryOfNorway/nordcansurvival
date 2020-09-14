@@ -2,7 +2,24 @@
 
 
 
-
+#' @title NORDCAN Survival Statistics
+#' @description
+#' Compute survival statistics for NORDCAN. Data is written onto disk and 
+#' Stata is called on the on-disk dataset.
+#' @param cancer_record_dataset `[data.table]` (mandatory, no default)
+#' 
+#' the NORDCAN dataset of cancer records after pre-processing
+#' @param national_population_life_table `[data.table]` (mandatory, no default)
+#' 
+#' the national population life table
+#' @param stata_exe_path `[character]` (mandatory, no default)
+#' 
+#' full path to Stata executable
+#' @param work_dir `[character]` (mandatory, no default)
+#' 
+#' path to directory where Stata scripts and datasets will be stored
+#' for the duration of computing the statistics
+#' @export
 #' @importFrom foreign read.dta
 nordcanstat_survival <- function(
   cancer_record_dataset,
