@@ -61,7 +61,7 @@ nordcanstat_survival <- function(
   )
   
   # retrieve basic information about stata -------------------------------------
-  stata_info_output <- stata_info(
+  stata_info_output <- get_stata_info(
     stata_exe_path = stata_exe_path
   )
   
