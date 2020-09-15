@@ -22,13 +22,13 @@ nordcanstat_survival <- function(
   national_population_life_table,
   stata_exe_path
 ) {
-  nordcanpreprocessing::assert_processed_cancer_record_dataset_is_valid(
-    cancer_record_dataset
-  )
+  # nordcanpreprocessing::assert_processed_cancer_record_dataset_is_valid(
+  #   cancer_record_dataset
+  # )
   dbc::assert_file_exists(stata_exe_path)
-  nordcanpreprocessing::assert_national_population_life_table_is_valid(
-    cancer_record_dataset
-  )
+  # nordcanpreprocessing::assert_national_population_life_table_is_valid(
+  #   cancer_record_dataset
+  # )
 
   settings <- nordcanstat_survival_settings(
     stata_exe_path = stata_exe_path
