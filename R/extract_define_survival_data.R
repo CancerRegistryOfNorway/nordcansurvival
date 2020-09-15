@@ -3,8 +3,8 @@ stata_extract_define_survival_data <- function(
   cancer_record_dataset_path, 
   stata_exe_path = NULL
 ) {
-  nordcanpreprocessing::assert_processed_cancer_record_dataset_is_valid(
-    cancer_record_dataset
+  dbc::assert_prod_input_file_exists(
+    cancer_record_dataset_path
   )
   settings <- nordcan_survival_settings(
     stata_exe_path = stata_exe_path
