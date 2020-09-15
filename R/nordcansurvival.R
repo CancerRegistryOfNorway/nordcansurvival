@@ -30,7 +30,7 @@ nordcanstat_survival <- function(
   #   cancer_record_dataset
   # )
 
-  settings <- nordcanstat_survival_settings(
+  settings <- nordcan_survival_settings(
     stata_exe_path = stata_exe_path
   )
   
@@ -38,10 +38,8 @@ nordcanstat_survival <- function(
   # prepare working directory contents -----------------------------------------
   # copy the stata programme itself into the working directory to be used
   # by the just-generated script
-  src_file_dir <- settings[["pkg_stata_script_dir"]]
-  src_file_paths <- dir(src_file_dir, full.names = TRUE, recursive = TRUE)
-  tgt_file_paths <- paste0(settings[["survival_work_dir"]], "/", src_file_names)
-  file.copy(src_file_paths, tgt_file_paths, overwrite = TRUE)
+  # src_file_dir <- settings[["pkg_stata_script_dir"]]
+  # file.copy(src_file_dir, settings[["survival_work_dir"]], recursive = TRUE)
 
   # write files that the stata script needs
   cancer_record_dataset <- cancer_record_dataset[
@@ -80,7 +78,12 @@ nordcanstat_survival <- function(
   )
   
   # the stata script has written its output into a new file. read it into R ----
-  output_file_ext <- gsub(".+\\.", "", settings[["survival_output_file_path"]])
+  if (!file.exists(settings[["survival_output_file_path"]])) {
+    raise_internal_error(
+      "expected file ", deparse(settings[["survival_output_file_path"]]),
+      " to be created by survival function, but it did not exist"
+    )
+  }
   output <- data.table::fread(file = settings[["survival_output_file_path"]])
   
   # final touches --------------------------------------------------------------

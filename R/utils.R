@@ -101,7 +101,7 @@ nordcan_survival_settings <- function(stata_exe_path) {
   )
   
   survival_output_file_path <- gsub(
-    "\\..+$", "_Result.dta", basename(cancer_record_dataset_path)
+    "\\..+$", "_Result.csv", cancer_record_dataset_path
   )
   
   survival_work_dir <- normalizePath(survival_work_dir, mustWork = TRUE)
@@ -112,11 +112,12 @@ nordcan_survival_settings <- function(stata_exe_path) {
   cancer_record_dataset_path <- normalizePath(cancer_record_dataset_path, mustWork = FALSE)
   national_population_life_table_path <- normalizePath(national_population_life_table_path, mustWork = FALSE)
   survival_output_file_path <- normalizePath(survival_output_file_path, mustWork = FALSE)
+  pkg_stata_script_dir <- normalizePath(pkg_stata_script_dir, mustWork = TRUE)
   
   mget(c("survival_work_dir", "stata_exe_path", "pkg_path",
          "entity_df_path", "ado_dir",
          "cancer_record_dataset_path", "national_population_life_table_path",
-         "survival_output_file_path"))
+         "survival_output_file_path", "pkg_stata_script_dir"))
 }
 
 

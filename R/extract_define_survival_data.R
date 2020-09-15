@@ -38,7 +38,6 @@ stata_extract_define_survival_data <- function(
   
   survival_file_base <- paste0(settings[["survival_work_dir"]], "/survival_file_base.dta")
   survival_file_analysis <- paste0(settings[["survival_work_dir"]], "/survival_file_analysis.dta")
-  
   ## build do file based on 'dofile_template';
   dofile_contents <- sprintf( dofile_template,
                               settings[["survival_work_dir"]],
@@ -46,7 +45,7 @@ stata_extract_define_survival_data <- function(
                               cancer_record_dataset_path,
                               survival_file_base,
                               survival_file_analysis,
-                              entities
+                              settings[["entity_df_path"]]
   )
   
   ## save the  do file
