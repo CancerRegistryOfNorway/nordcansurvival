@@ -46,11 +46,13 @@ nordcanstat_survival <- function(
   ]
   data.table::fwrite(
     x = cancer_record_dataset,
-    file = settings[["cancer_record_dataset_path"]]
+    file = settings[["cancer_record_dataset_path"]],
+    sep = ";"
   )
   data.table::fwrite(
     x = national_population_life_table,
-    file = settings[["national_population_life_table_path"]]
+    file = settings[["national_population_life_table_path"]],
+    sep = ";"
   )
   
   # retrieve basic information about stata -------------------------------------
