@@ -36,11 +36,6 @@ nordcanstat_survival <- function(
   
 
   # prepare working directory contents -----------------------------------------
-  # copy the stata programme itself into the working directory to be used
-  # by the just-generated script
-  # src_file_dir <- settings[["pkg_stata_script_dir"]]
-  # file.copy(src_file_dir, settings[["survival_work_dir"]], recursive = TRUE)
-
   # write files that the stata script needs
   cancer_record_dataset <- cancer_record_dataset[
     cancer_record_dataset[["excl_surv_total"]] == 0L,
