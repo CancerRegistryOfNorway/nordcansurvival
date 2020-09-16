@@ -12,6 +12,25 @@ if ( "`estimand'" == "" ) {
 	local estimand = "netsurvival"
 }
 
+if ( strlower(substr("`lifetable'",-4,.)) != ".dta" ) {
+	
+	import delimited using "`lifetable'" , ///
+		varnames(1)       /// 
+		encoding("UTF-8") ///
+	    delimiter(";")    ///
+		case(preserve)    ///
+		asdouble
+		
+	capture rename age _age
+	capture rename year _year
+	
+	sort  _year  sex  _age
+	
+	mata : st_local("lifetable", pathrmsuffix("`lifetable'"))
+	
+	save "`lifetable'" , replace
+}
+
 ********************************************************************************
 
 if ("`estimand'" == "netsurvival") {
