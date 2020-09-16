@@ -101,7 +101,7 @@ nordcan_survival_settings <- function(stata_exe_path) {
   )
   
   survival_output_file_path <- gsub(
-    "\\..+$", "_Result.csv", cancer_record_dataset_path
+    "\\..+$", "_Result.dta", cancer_record_dataset_path
   )
   
   survival_work_dir <- normalizePath(survival_work_dir, mustWork = TRUE)

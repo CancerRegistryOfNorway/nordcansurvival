@@ -192,7 +192,8 @@ local surv_entities_vars  =
 ********************************************************************************
 merge m:1 entity using "`survival_entities'", ///
 	keepusing(`surv_entities_vars') ///
-	assert(master match)
+	/// assert(master match)
+	
 ********************************************************************************
 assert entity_levels == 30 if _merge == 1
 drop entity_levels
