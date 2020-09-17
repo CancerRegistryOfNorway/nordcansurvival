@@ -79,6 +79,15 @@ nordcanstat_survival <- function(
           "extract_define_survival_data finished; ",
           data.table::timetaken(t))
   
+  if (!file.exists(settings[["survival_file_analysis"]])) {
+    stop(
+      "Expected file ", deparse(settings[["survival_file_analysis"]]),
+      " to be created by nordcansurvival::extract_define_survival_data, ",
+      "but it did not exist; it seems ",
+      "nordcansurvival::survival_statistics has failed. please see the log ",
+      "files in ", settings[["survival_work_dir"]], " for more information."
+    )
+  }
   # compile survival statistics using stata ------------------------------------
   message("* nordcansurvival::nordcanstat_survival: started running ",
           "survival_statistics at ", 
@@ -105,9 +114,11 @@ nordcanstat_survival <- function(
   
   # the stata script has written its output into a new file. read it into R ----
   if (!file.exists(settings[["survival_output_file_path"]])) {
-    raise_internal_error(
-      "expected file ", deparse(settings[["survival_output_file_path"]]),
-      " to be created by survival function, but it did not exist"
+    stop(
+      "Expected file ", deparse(settings[["survival_output_file_path"]]),
+      "to be created, but it did not exist; it seems that ",
+      "nordcansurvival::survival_statistics has failed. please see the log ",
+      "files in ", settings[["survival_work_dir"]], " for more information."
     )
   }
   message("* nordcansurvival::nordcanstat_survival: reading in results from ",
