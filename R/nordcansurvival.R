@@ -12,11 +12,7 @@
 #' @param national_population_life_table `[data.table]` (mandatory, no default)
 #' 
 #' the national population life table
-#' @param stata_exe_path `[NULL, character]` (mandatory, no default)
-#' 
-#' - `NULL`: path is taken from cache, if there; the path is cached when 
-#'   supplied as a `character`
-#' - `character`: full path to Stata executable
+#' @template param_stata_exe_path
 #' @export
 #' @importFrom data.table .SD
 #' @return 

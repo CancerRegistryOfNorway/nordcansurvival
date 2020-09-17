@@ -1,5 +1,13 @@
 
 
+#' @title Stata Info
+#' @description
+#' Retrieve Stata version, session, and other information.
+#' @template param_stata_exe_path
+#' @export
+#' @return
+#' A `character` vector of the contents of a log file from running a
+#' Stata script in batch mode.
 get_stata_info <- function(stata_exe_path) {
   ## make template for Stata commad file
   dofile_template <-
