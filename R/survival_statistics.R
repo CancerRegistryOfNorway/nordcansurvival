@@ -1,5 +1,24 @@
 
 
+
+#' @title Survival
+#' @description
+#' Run a Stata script on a dataset saved on-disk to produce a table of
+#' survival statistics on-disk.
+#' @template param_stata_exe_path
+#' @param cancer_record_dataset_path `[character]` (mandatory, no default)
+#' 
+#' path to a dataset of cancer records
+#' @param national_population_life_table_path `[character]` (mandatory, no default)
+#' 
+#' path to life table
+#' @param estimand `[character]` (mandatory, no default)
+#' 
+#' relative / net survival estimand
+#' @export
+#' @return
+#' [system] is called internally and that function's output is returned
+#' (an integer).
 survival_statistics <- function(
   stata_exe_path = NULL,
   cancer_record_dataset_path,

@@ -1,4 +1,17 @@
 
+#' @title Survival Preparation
+#' @description
+#' Run a Stata script on a dataset saved on-disk to prepare a dataset of
+#' on-disk for computing survival.
+#' @template param_stata_exe_path
+#' @param cancer_record_dataset_path `[character]` (mandatory, no default)
+#' 
+#' path to a dataset of cancer records
+#' @template param_stata_exe_path
+#' @export
+#' @return
+#' [system] is called internally and that function's output is returned
+#' (an integer).
 extract_define_survival_data <- function(
   cancer_record_dataset_path, 
   stata_exe_path = NULL
