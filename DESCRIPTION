@@ -1,7 +1,7 @@
 Package: nordcansurvival
 Type: Package
 Title: NORDCAN Survival Statistics
-Version: 0.1.12
+Version: 0.3.0
 Author: Huidong Tian
 Imports: 
     utils,
@@ -11,7 +11,7 @@ Imports:
 Maintainer: Huidong Tian <huidon.tian@kankerregistret.no>
 Description: Enables computing survival statistics as per NORDCAN 
     specifications.
-License: What license is it under?
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
