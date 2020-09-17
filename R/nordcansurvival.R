@@ -87,7 +87,7 @@ nordcanstat_survival <- function(
   # first call creates life_table.dta, but is not able to read it due to a bug.
   survival_statistics(
     stata_exe_path =  settings[["stata_exe_path"]],
-    cancer_record_dataset_path = normalizePath("survival/survival_file_analysis.dta"),
+    cancer_record_dataset_path = settings[["survival_output_file_path"]],
     national_population_life_table_path = settings[["national_population_life_table_path"]],
     estimand = "netsurvival"
   )
@@ -95,7 +95,7 @@ nordcanstat_survival <- function(
   # life_table.dta.
   survival_statistics(
     stata_exe_path =  settings[["stata_exe_path"]],
-    cancer_record_dataset_path = normalizePath("survival/survival_file_analysis.dta"),
+    cancer_record_dataset_path = settings[["survival_output_file_path"]],
     national_population_life_table_path = sub("\\.csv", ".dta", settings[["national_population_life_table_path"]]),
     estimand = "netsurvival"
   )
