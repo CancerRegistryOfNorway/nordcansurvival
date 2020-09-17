@@ -1,5 +1,5 @@
 
-stata_extract_define_survival_data <- function(
+extract_define_survival_data <- function(
   cancer_record_dataset_path, 
   stata_exe_path = NULL
 ) {

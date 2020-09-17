@@ -7,7 +7,7 @@
 nordcanstat_survival(
   cancer_record_dataset,
   national_population_life_table,
-  stata_exe_path
+  stata_exe_path = NULL
 )
 }
 \arguments{
@@ -19,9 +19,14 @@ the NORDCAN dataset of cancer records after pre-processing}
 
 the national population life table}
 
-\item{stata_exe_path}{`[character]` (mandatory, no default)
+\item{stata_exe_path}{`[NULL, character]` (mandatory, no default)
 
-full path to Stata executable}
+- `NULL`: path is taken from cache, if there; the path is cached when 
+  supplied as a `character`
+- `character`: full path to Stata executable}
+}
+\value{
+Returns a `data.table` of the resulting survival statistics.
 }
 \description{
 Compute survival statistics for NORDCAN. Data is written onto disk and 

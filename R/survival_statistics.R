@@ -1,6 +1,6 @@
 
 
-stata_survival_statistics <- function(
+survival_statistics <- function(
   stata_exe_path = NULL,
   cancer_record_dataset_path,
   national_population_life_table_path,
