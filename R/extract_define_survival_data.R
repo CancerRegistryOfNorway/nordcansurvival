@@ -16,12 +16,7 @@ extract_define_survival_data <- function(
   cancer_record_dataset_path, 
   stata_exe_path = NULL
 ) {
-  dbc::assert_prod_input_file_exists(
-    cancer_record_dataset_path
-  )
-  settings <- nordcan_survival_settings(
-    stata_exe_path = stata_exe_path
-  )
+  dbc::assert_prod_input_file_exists(cancer_record_dataset_path)
   
   ## make template for Stata command file
   dofile_template <-
@@ -44,20 +39,17 @@ extract_define_survival_data <- function(
 
     "
   
-  
+  settings <- nordcan_survival_settings(stata_exe_path = stata_exe_path)
   entity_df_path <- settings[["entity_df_path"]]
-  
   ado_dir <- settings[["ado_dir"]]
   
-  survival_file_base <- paste0(settings[["survival_work_dir"]], "/survival_file_base.dta")
-  survival_file_analysis <- paste0(settings[["survival_work_dir"]], "/survival_file_analysis.dta")
   ## build do file based on 'dofile_template';
   dofile_contents <- sprintf( dofile_template,
                               settings[["survival_work_dir"]],
                               ado_dir,ado_dir,ado_dir,ado_dir,
                               cancer_record_dataset_path,
-                              survival_file_base,
-                              survival_file_analysis,
+                              settings[["survival_file_base"]],
+                              settings[["survival_file_analysis"]],
                               settings[["entity_df_path"]]
   )
   

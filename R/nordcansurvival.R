@@ -38,14 +38,14 @@ nordcanstat_survival <- function(
   # prepare working directory contents -----------------------------------------
   message("* nordcansurvival::nordcanstat_survival: writing life table to ",
           deparse(settings[["national_population_life_table_path"]]), "...")
-  national_population_life_table <- data.table::copy(
+  nplf <- data.table::copy(
     national_population_life_table
   )
   data.table::setnames(
-    national_population_life_table, c("year", "age"), c("_year", "_age")
+    nplf, c("year", "age"), c("_year", "_age")
   )
   data.table::fwrite(
-    x = national_population_life_table,
+    x = nplf,
     file = settings[["national_population_life_table_path"]],
     sep = ";"
   )
@@ -53,7 +53,7 @@ nordcanstat_survival <- function(
   message("* nordcansurvival::nordcanstat_survival: writing ",
           "cancer_record_dataset to ",
           deparse(settings[["cancer_record_dataset_path"]]), "...")
-  cancer_record_dataset <- cancer_record_dataset[
+  crd <- cancer_record_dataset[
     cancer_record_dataset[["excl_surv_total"]] == 0L,
     .SD,
     .SDcols = nordcancore::nordcan_metadata_column_name_set(
@@ -61,23 +61,22 @@ nordcanstat_survival <- function(
     )
   ]
   data.table::fwrite(
-    x = cancer_record_dataset,
+    x = crd,
     file = settings[["cancer_record_dataset_path"]],
     sep = ";"
   )
-  rm(list = c("national_population_life_table", "cancer_record_dataset"))
   
   # define the dataset using a stata script ------------------------------------
   message("* nordcansurvival::nordcanstat_survival: started running ",
-          "extract_define_survival_data at ", 
+          "extract_define_survival_data at ",
           as.character(Sys.time()))
   t <- proc.time()
   extract_define_survival_data(
-    cancer_record_dataset_path = settings[["cancer_record_dataset_path"]], 
+    cancer_record_dataset_path = settings[["cancer_record_dataset_path"]],
     stata_exe_path = settings[["stata_exe_path"]]
   )
   message("* nordcansurvival::nordcanstat_survival: ",
-          "extract_define_survival_data finished; ", 
+          "extract_define_survival_data finished; ",
           data.table::timetaken(t))
   
   # compile survival statistics using stata ------------------------------------
@@ -85,10 +84,19 @@ nordcanstat_survival <- function(
           "survival_statistics at ", 
           as.character(Sys.time()))
   t <- proc.time()
+  # first call creates life_table.dta, but is not able to read it due to a bug.
   survival_statistics(
     stata_exe_path =  settings[["stata_exe_path"]],
-    cancer_record_dataset_path = settings[["cancer_record_dataset_path"]],
+    cancer_record_dataset_path = normalizePath("survival/survival_file_analysis.dta"),
     national_population_life_table_path = settings[["national_population_life_table_path"]],
+    estimand = "netsurvival"
+  )
+  # therefore in the second call we refer explicitly to the generated 
+  # life_table.dta.
+  survival_statistics(
+    stata_exe_path =  settings[["stata_exe_path"]],
+    cancer_record_dataset_path = normalizePath("survival/survival_file_analysis.dta"),
+    national_population_life_table_path = sub("\\.csv", ".dta", settings[["national_population_life_table_path"]]),
     estimand = "netsurvival"
   )
   message("* nordcansurvival::nordcanstat_survival: ",

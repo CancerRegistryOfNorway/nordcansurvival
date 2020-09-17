@@ -26,10 +26,7 @@ get_stata_info <- function(stata_exe_path) {
 
     "
 
-  ## Check STATA/files exist or not;
-  settings <- nordcan_survival_settings(
-    stata_exe_path = stata_exe_path
-  )
+  settings <- nordcan_survival_settings(stata_exe_path = stata_exe_path)
   ado_dir <- settings[["ado_dir"]]
 
   dofile <- sprintf(

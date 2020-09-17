@@ -49,21 +49,7 @@ survival_statistics <- function(
 
     "
 
-  settings <- nordcan_survival_settings(
-    stata_exe_path = stata_exe_path
-  )
-  
-
-  if (!file.exists(cancer_record_dataset_path)) {
-    stop(sprintf("Can not find 'cancer_record_dataset_path': %s !", 
-                 cancer_record_dataset_path))
-  }
-  if (!file.exists(national_population_life_table_path)) {
-    stop(sprintf("Can not find 'national_population_life_table_path': %s !", 
-                 national_population_life_table_path))
-  }
-  
-  output_file_path <- settings[["survival_output_file_path"]]
+  settings <- nordcan_survival_settings(stata_exe_path = stata_exe_path)
   survival_work_dir <- settings[["survival_work_dir"]]
   ## build do file based on 'dofile_template';
   ado_dir <- settings[["ado_dir"]]
@@ -71,7 +57,7 @@ survival_statistics <- function(
                               survival_work_dir,
                               ado_dir, ado_dir, ado_dir, ado_dir,
                               cancer_record_dataset_path,
-                              output_file_path,
+                              settings[["survival_output_file_path"]],
                               national_population_life_table_path,
                               estimand
   )
