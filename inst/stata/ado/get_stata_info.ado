@@ -10,8 +10,6 @@ quietly {
 	noi di "OS temporary dir"   _col(20) c(tmpdir)
 	noi di "current_date" 		_col(20) c(current_date)
 	noi di "current_time" 		_col(20) c(current_time)
-	noi di "username" 			_col(20) c(username) 
-	noi di "hostname"			_col(20) c(hostname)
 	noi di "os"					_col(20) c(os) 
 	noi di "machine_type"		_col(20) c(machine_type)
 	noi di "stata_version"		_col(20) c(stata_version)
@@ -19,9 +17,7 @@ quietly {
 	noi query compilenumber
 	noi di "N processors" 		_col(20) c(processors)
 	noi di "default data type"	_col(20) c(type) 
-	noi di _n _dup(72) "-" 	
-	noi about
-	noi di _n _n _dup(72) "-" 	
+	noi di _n _dup(72) "-" 		
 	noi sysdir
 	noi di _n _n _dup(72) "-" 	
 	
@@ -33,15 +29,17 @@ quietly {
 	
 	noi di _n _n _dup(72) "-" _n  
 	
-	noi which extract_define_survival_data
-	noi which survival_statistics 
-	noi which stnet
+	capt noi which extract_define_survival_data
+	capt noi which survival_statistics 
+	capt noi which stnet
 	
 	noi di _n _dup(72) "-" 	
 	
-	noi which stset
-	noi which import
-	noi which export
+	capt noi which stset
+	capt noi which import
+	capt noi which export
+	
+	capt noi di fre
 	
 	noi di _n _dup(72) "-" 	
 }

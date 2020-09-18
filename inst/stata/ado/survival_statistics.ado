@@ -4,12 +4,32 @@ syntax ,			   ///
     [estimand(string)] /// what to estimate
 	infile(string) 	   /// NC S dataset (dta)
 	outfile(string)    /// detailed ressults (dta)
-	lifetable(string)  // National lifetable file (dta)
+	lifetable(string)  /// National lifetable file (dta)
+	survival_entities(string)
 
 ********************************************************************************
 if ( "`estimand'" == "" ) {
 
 	local estimand = "netsurvival"
+}
+
+if ( strlower(substr("`lifetable'",-4,.)) != ".dta" ) {
+	
+	import delimited using "`lifetable'" , ///
+		varnames(1)       /// 
+		encoding("UTF-8") ///
+	    delimiter(";")    ///
+		case(preserve)    ///
+		asdouble
+		
+	capture rename age _age
+	capture rename year _year
+	
+	sort  _year  sex  _age
+	
+	mata : st_local("lifetable", pathrmsuffix("`lifetable'"))
+	
+	save "`lifetable'" , replace
 }
 
 ********************************************************************************
@@ -19,7 +39,8 @@ if ("`estimand'" == "netsurvival") {
 	net_survival ,			   			   ///
 		infile("`infile'") 	               /// NC S dataset (dta)
 		outfile("`outfile'")               /// detailed ressults (dta)
-		lifetable("`lifetable'")           //  National lifetable file (dta)*/
+		lifetable("`lifetable'")           ///  National lifetable file (dta)*/
+		survival_entities("`survival_entities'")
 }
 
 end
@@ -35,8 +56,9 @@ prog define net_survival  , rclass
 syntax ,			   ///
 	infile(string) 	   /// NC S dataset (dta)
 	outfile(string)    /// detailed ressults (dta)
-	lifetable(string)  // National lifetable file (dta)*/
-
+	lifetable(string)  /// National lifetable file (dta)*/
+	survival_entities(string)
+	
 ********************************************************************************
 
 use entity using "`infile'" , clear
@@ -83,7 +105,9 @@ save "`outfile'" , replace
 
 describe using "`outfile'"
 
-nc_rs_format_export , outfile("`outfile'")
+nc_rs_format_export , ///
+	outfile("`outfile'") ///
+	survival_entities("`survival_entities'")
 
 ********************************************************************************
 
@@ -176,9 +200,23 @@ end // nc_stnet
 
 prog define nc_rs_format_export , nclass
 
-syntax , outfile(string)
+syntax , outfile(string) ///
+	survival_entities(string) 
 
 use "`outfile'" if end == 5 , clear
+
+********************************************************************************
+* merge NC S data with NC S definitions
+********************************************************************************
+local surv_entities_vars entity entity_description_en  entity_display_order
+merge m:1 entity using "`survival_entities'", ///
+keepusing(`surv_entities_vars') ///
+keep(master match) 
+capt drop _merge
+capt drop start n d dstarpoh ypoh dpoh dpohsq secns
+
+order entity entity_description_en entity_display_order
+sort entity_display_order period sex
 
 * TODO:
 *
@@ -198,3 +236,8 @@ end  // nc_rs_format_export
 }
 
 exit
+
+
+ 
+
+

@@ -1,5 +1,30 @@
 
-stata_extract_define_survival_data <- function(
+#' @title extract_define_survival_data
+#' @description
+#' 
+#' Run a Stata script on a dataset saved on-disk to prepare a two dataset of
+#' for computing survival.
+#' 
+#' survival_file_base.dta 
+#'
+#' survival_file_analysis.dta
+#' 
+#' survival_file_base.dta  includes all potential records, all relevant variables including strings
+#' 
+#' survival_file_analysis.dta includes a minimum of variables used for estimation and only observations
+#' for entities were data exists in all strata used for weighting
+#' 
+#' the dta files can be read in R using the optional haven package
+#' 
+#' 
+#' @param cancer_record_dataset_path `[character]` (mandatory, no default)
+#' @param stata_exe_path This is set in the NORDCAN settings by default
+#' 
+#' path to a dataset of cancer records
+#' @export
+#' @return
+#' 
+extract_define_survival_data <- function(
   cancer_record_dataset_path, 
   stata_exe_path = NULL
 ) {

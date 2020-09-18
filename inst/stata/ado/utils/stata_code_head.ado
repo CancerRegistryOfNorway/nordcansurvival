@@ -20,6 +20,4 @@ qui {
 
 end
 
-exit  // test below
-
-stata_code_head , function(survival_statistics)
+ 

@@ -1,6 +1,51 @@
+#' @title survival_statistics
+#' @description
+#' Provides non-parametric estimate of marginal relative survival, which under assumptions can be 
+#' interpreted as marginal net survival. survival_statistics() is calling the Stata stnet program, 
+#' using the Pohar Perme estimator with Brenner weighting to estimate age-standardized net survival.
+#' 
+#' The beta version provides 5-year survival only.
+#' 
+#' For some entities estimation is not possible because there are no data in some age stratum used
+#' for weighting. 
+#' 
+#' In the beta version there is no lower limit to data, execpt there must be at least one observation 
+#' in each strata.
+#' 
+#'
+#' @param cancer_record_dataset_path path to a dataset of cancer records
+#' @param national_population_life_table_path (mandatory, default by NORDCAN system)
+#' @param estimand defaults to "netsurvival" the only option so far
+#' @param stata_exe_path This is set in the NORDCAN settings by default
+#' 
+#' @examples 
+#' 
+#' 
+#' library(nordcansurvival)
+#' infile <-  paste0(system.file(package = "nordcansurvival"), "/Stata/demo/NCS_NO_anonymous_example_data.dta")
+#' lifetable <- paste0(system.file(package = "nordcansurvival"), "/Stata/demo/NO_2018_lifetable.dta")
 
 
-stata_survival_statistics <- function(
+#' nordcancore::set_global_nordcan_settings(
+#'   work_dir = getwd(),
+#'   stat_cancer_record_count_year_first = 1953,
+#'   stat_cancer_record_count_year_last = 2018,
+#'   stat_prevalent_subject_count_year_first = 1953,
+#'   stat_prevalent_subject_count_year_last= 2018,
+#'   stat_survival_follow_up_year_first = 1953,
+#'   stat_survival_follow_up_year_last = 2018
+#' )
+#'
+#'
+#'survival_statistics(cancer_record_dataset_path  = infile , 
+#'                    national_population_life_table_path = lifetable, 
+#'                    stata_exe_path = "S:/Prog64/STATA/Stata16MP/StataMP-64.exe")
+#'
+#'
+#' @export
+#' @return
+#'
+survival_statistics <- function(
   stata_exe_path = NULL,
   cancer_record_dataset_path,
   national_population_life_table_path,
@@ -25,6 +70,7 @@ stata_survival_statistics <- function(
     	outfile(%s) 	        /// detailed ressults (dta)
     	lifetable(%s) 	      /// National lifetable file (dta)
     	estimand(%s)          /// What to estimate
+    	survival_entities(%s)
 
     stata_code_tail, function(survival_statistics)  // cleaning up etc
 
@@ -54,7 +100,8 @@ stata_survival_statistics <- function(
                               cancer_record_dataset_path,
                               output_file_path,
                               national_population_life_table_path,
-                              estimand
+                              estimand, 
+                              settings[["entity_df_path"]]
   )
   
   ## save the  do file

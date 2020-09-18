@@ -1,0 +1,242 @@
+---
+title: "Nordcan Survival"
+author: "Bjarte Aagnes"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Nordcan Survival}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+Project pages
+-------------
+
+github wiki
+
+:  <https://github.com/CancerRegistryOfNorway/NORDCAN/wiki>
+  <https://github.com/CancerRegistryOfNorway/NORDCAN/wiki/Module-Survival>
+
+github issues (formal feedback)
+
+:  <https://github.com/CancerRegistryOfNorway/NORDCAN/issues>
+
+slack testing (informal feedback)
+
+:  <https://app.slack.com/client/TUKT10AHW/C01A6SN13QA>
+
+Most of this info is also available online at
+
+:  <https://bjarteAAGNES.github.io> 
+
+
+Package description
+-------------------
+
+**nordcansurvival** is a R package for survival statistics in the
+NORDCAN project.
+
+<https://nordcan-preprod.iarc.fr/en/about>
+
+| **nordcansurvival::survival_statistics()** provides non-parametric
+ estimate of marginal relative survival,
+| which under assumptions can be interpreted as marginal net survival.
+
+| The **nordcansurvival::survival_statistics()** is calling the **Stata
+ stnet** program,
+| using the *Pohar Perme estimator* with *Brenner weighting* to estimate
+ age-standardized net survival.
+
+| The package is self-contained, i.e. all programs, like Stata stnet,
+ are provided within the package.
+| The provided Stata programs used within this package may be optimized,
+ thus not identical to the official programs, but will provide
+ identical estimates.
+
+| The programs is provided for use with Stata 14.2, 15.1, 16.1, or more
+ recent versions.
+
+### Data sources:
+
+#### Cancer cases
+
+**NORDCAN incidence data** (after preprocessing and enrichment)
+
+Included for analyses is a predefined subsets of entities/entity groups.
+
+#### National general population life-table
+
+| A national population life-table containing the conditional
+ probability of SURVIVING the next year
+| for each combination of values of the demographic variables; *age,
+ year and sex*.
+
+Life-table specification see
+<https://github.com/CancerRegistryOfNorway/NORDCAN/wiki/Call-for-data-Survival>
+
+### Stata stnet
+
+stnet version 1.0.8 2020-06-11
+
+<https://www.pauldickman.com/software/stnet/stnet/>
+
+| Enzo Coviello, Karri Seppä, Paul W. Dickman, Arun Pokhrel, 2015.
+| *Estimating net survival using a life-table approach*,
+| The Stata Journal, StataCorp LP, vol. 15(1), pages 173-185.
+
+<https://www.pauldickman.com/pdf/Coviello2015.pdf>
+
+#### Age-standardisation method
+
+| The age-standardisation method is described in
+| Mark J. Rutherford, Paul W.Dickman, EnzoCoviello, Paul C.Lambert,
+ 2020.
+| *Estimation of age-standardized net survival, even when age-specific
+ data are sparse*
+
+<https://www.sciencedirect.com/science/article/pii/S1877782120300795>
+
+| An illustration of the Brenner approach to age-standardised net
+ survival (Pohar Perme estimator) is at
+
+<https://www.pauldickman.com/software/strs/age_standardised_net_survival/>
+
+| For documentation of the NORDCAN ICSS weights and correspondig age
+ groups; see
+| <https://nordcan.iarc.fr/> help tabs \[Glossary of statistical terms
+ \[Relative Survial\] \]
+
+| The same methods and program (stnet) are used in studies in ICBP
+ SURVMARK-2 (includes Denmark and Norway) i.e.
+| 
+| *Progress in cancer survival, mortality, and incidence in seven
+ high-income countries 1995--2014 (ICBP SURVMARK-2): a population-based
+ study*
+| 
+| <https://www.thelancet.com/journals/lanonc/article/PIIS1470-2045(19)30456-5/fulltext>
+| 
+| <https://survival.iarc.fr/Survmark/en/>
+
+nordcansurvival functions
+=========================
+
+Synopsis:
+---------
+
+### utility function
+
+``` {.R}
+nordcansurvival::get_stata_info()
+```
+
+| Return information on Stata, Stata installation, and the programs
+ used.
+| This should be included in any technical support questions.
+
+### main functions
+
+``` {.R}
+nordcansurvival::extract_define_survival_data() 
+
+nordcansurvival::survival_statistics() # estimates net survival (by default)
+```
+
+### input
+
+| The default input to **extract_define_survival_data()** is a subset of
+ the **nordcan_incidence_dataset**
+| where records **excl_surv_total==0** and variables are
+ **column_name_set_survival**
+
+output \^\^\^\^\^
+
+| **extract_define_survival_data()** prepare survival data saving two
+ datasets:
+
+> 1. **survival_file_base.dta** (all *potential* records, all relevant
+>   variables including strings)
+> 2. **survival_file_analysis.dta** (only records to be used in
+>   estimation, only necessary vars)
+
+The survival_file_analysis.dta is then used by
+
+| **survival_statistics()** which run the analysis and saves two files
+
+> 1. **survival_detailed_results.dta**
+> 2. **survival_results.csv**
+
+A detailed dta file, and a csv with result (predefined content and
+format).
+
+USE CASE TO BE UPDATED
+----------------------
+
+### extract_define_survival_data()
+
+``` {.R}
+library(nordcansurvival)
+
+nordcansurvival::extract_define_survival_data() 
+
+# read the NORDCAN incidence data
+# saves two files in the NORDCAN survival directory
+```
+
+### survival_statistics()
+
+``` {.R}
+library(nordcansurvival)
+
+nordcansurvival::survival_statistics()
+
+# saves two result files in the NORDCAN survival directory
+# csv file: estimation for publication
+# dta file: detailed results for other use or inspection
+```
+
+### get_stata_info()
+
+``` {.R}
+library(nordcansurvival)
+
+nordcansurvival::get_stata_info()  # for debugging: returns info on installation to R-consol
+```
+
+Stata intallation
+=================
+
+All countries should have Stata installed, available from the same
+pc/server as the NORDCAN R-packages are installed. The R-pacakge
+nordcansurvival provides all neccesarry Stata programs and settings used
+for the nordcansurvival.
+Please, make your Stata installation up-dated. The current recent
+versions are:
+
+1. 16.1 February 2020 (free downloadable update)
+2. 15.1 November 2017 (free downloadable update)
+3. 14.2 September 2016 (free downloadable update)
+
+A simple way to update if on a secure non-internett zone is to update a
+Stata installation on the internet zone, and copy the updated
+installation to the non-internett zone.
+
+The following Stata command will show the version of Stata:
+
+about
+update query
+
+and the following will help you update automatically if on internetzone.
+
+update query
+
+Update without Internet access can be done done downloading and moving
+update archive to non internet zone
+
+<https://www.stata.com/support/updates/>
+
+After unzipping the update archive at non internet zone, use the
+*update* command
+
+
+

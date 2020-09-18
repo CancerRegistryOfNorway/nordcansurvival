@@ -1,16 +1,19 @@
 Package: nordcansurvival
 Type: Package
 Title: NORDCAN Survival Statistics
-Version: 0.1.6
-Author: Huidong Tian
+Version: 0.1.10
+Author: Bjarte Aagnes, Huidong Tian, Joonas Miettinen
 Imports: 
     utils,
     data.table,
     dbc,
     nordcancore
-Maintainer: Huidong Tian <huidon.tian@kankerregistret.no>
-Description: Enables computing survival statistics as per NORDCAN 
-    specifications.
+VignetteBuilder: knitr
+Suggests: 
+  knitr, 
+  rmarkdown
+Maintainer: Cancer Registry of Norway <data@kreftregisteret.no>
+Description: Survival statistics for the NORDCAN project
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true

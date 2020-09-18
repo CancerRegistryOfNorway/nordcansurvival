@@ -1,5 +1,18 @@
-
-
+#' @title get_stata_info
+#' @description
+#' Retrieve Stata version, session, and other information for debugging.
+#' 
+#' This function is for use locally by the user to get informations on Stata installation
+#' and settings , to report in debugging.
+#' 
+#' The file includes path information and should probably not be distributed outside your local setting.
+#' 
+#' @param stata_exe_path Path to Stata executable. In NORDAN taken from the settings by default.
+#' 
+#' 
+#' @export
+#' @return
+#' 
 get_stata_info <- function(stata_exe_path) {
   ## make template for Stata commad file
   dofile_template <-
