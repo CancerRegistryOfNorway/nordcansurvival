@@ -12,7 +12,7 @@ VignetteBuilder: knitr
 Suggests: 
   knitr, 
   rmarkdown
-Maintainer: Cancer Registry of Norway <data@kreftregisteret.no>
+Maintainer: Cancer Registry of Norway <Nordcansurvival@kreftregisteret.no>
 Description: Survival statistics for the NORDCAN project
 License: What license is it under?
 Encoding: UTF-8
