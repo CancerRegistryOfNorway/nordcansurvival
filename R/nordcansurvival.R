@@ -6,49 +6,51 @@ nordcanstat_survival <- function(
   stata_exe_path = NULL
 ) {
   t_start <- proc.time()
-  # nordcanpreprocessing::assert_processed_cancer_record_dataset_is_valid(
-  #   cancer_record_dataset
-  # )
-  dbc::assert_file_exists(stata_exe_path)
-  # nordcanpreprocessing::assert_national_population_life_table_is_valid(
-  #   cancer_record_dataset
-  # )
+  dbc::assert_is_data.frame_with_required_names(
+    cancer_record_dataset,
+    required_names =  nordcancore::nordcan_metadata_column_name_set(
+      "column_name_set_survival"
+    )
+  )
+  nordcanpreprocessing::assert_national_population_life_table_is_valid(
+    national_population_life_table
+  )
   
   settings <- nordcan_survival_settings(
     stata_exe_path = stata_exe_path
   )
-
+  
   # prepare working directory contents -----------------------------------------
   message("* nordcansurvival::nordcanstat_survival: writing life table to ",
           deparse(settings[["national_population_life_table_path"]]), "...")
-  national_population_life_table <- data.table::copy(
+  nplt <- data.table::copy(
     national_population_life_table
   )
-  data.table::setnames(
-    national_population_life_table, c("year", "age"), c("_year", "_age")
-  )
+  data.table::setnames(nplt, c("year", "age"), c("_year", "_age"))
   data.table::fwrite(
-    x = national_population_life_table,
+    x = nplt,
     file = settings[["national_population_life_table_path"]],
     sep = ";"
   )
+  rm(list = "nplt")
   
   message("* nordcansurvival::nordcanstat_survival: writing ",
           "cancer_record_dataset to ",
           deparse(settings[["cancer_record_dataset_path"]]), "...")
-  cancer_record_dataset <- cancer_record_dataset[
+  crd <- cancer_record_dataset[
     cancer_record_dataset[["excl_surv_total"]] == 0L,
-    .SD,
-    .SDcols = nordcancore::nordcan_metadata_column_name_set(
+    nordcancore::nordcan_metadata_column_name_set(
       "column_name_set_survival"
-    )
+    ),
+    with = FALSE
   ]
   data.table::fwrite(
-    x = cancer_record_dataset,
+    x = crd,
     file = settings[["cancer_record_dataset_path"]],
     sep = ";"
   )
-  rm(list = c("national_population_life_table", "cancer_record_dataset"))
+  rm(list = "crd")
+  gc()
   
   # define the dataset using a stata script ------------------------------------
   message("* nordcansurvival::nordcanstat_survival: started running ",
@@ -68,10 +70,22 @@ nordcanstat_survival <- function(
           "survival_statistics at ", 
           as.character(Sys.time()))
   t <- proc.time()
+  
+  # work-around on a bug: this converts life table csv -> dta but does not run
+  # the actual stata programme
+  nplt_csv_path <- settings[["national_population_life_table_path"]]
   survival_statistics(
     stata_exe_path =  settings[["stata_exe_path"]],
-    cancer_record_dataset_path = settings[["cancer_record_dataset_path"]],
-    national_population_life_table_path = settings[["national_population_life_table_path"]],
+    cancer_record_dataset_path = settings[["survival_file_analysis_path"]],
+    national_population_life_table_path = nplt_csv_path,
+    estimand = "netsurvival"
+  )
+  # this runs the stata programme as well
+  nplt_dta_path <-  sub("\\.csv$", ".dta", nplt_csv_path)
+  survival_statistics(
+    stata_exe_path =  settings[["stata_exe_path"]],
+    cancer_record_dataset_path = settings[["survival_file_analysis_path"]],
+    national_population_life_table_path = nplt_dta_path,
     estimand = "netsurvival"
   )
   message("* nordcansurvival::nordcanstat_survival: ",
@@ -80,9 +94,11 @@ nordcanstat_survival <- function(
   
   # the stata script has written its output into a new file. read it into R ----
   if (!file.exists(settings[["survival_output_file_path"]])) {
-    raise_internal_error(
+    stop(
       "expected file ", deparse(settings[["survival_output_file_path"]]),
-      " to be created by survival function, but it did not exist"
+      " to be created by survival function, but it did not exist; see log ",
+      "files in ", deparse(settings[["survival_work_dir"]]), " for more ",
+      "information"
     )
   }
   message("* nordcansurvival::nordcanstat_survival: reading in results from ",

@@ -113,10 +113,15 @@ nordcan_survival_settings <- function(stata_exe_path) {
   national_population_life_table_path <- normalizePath(national_population_life_table_path, mustWork = FALSE)
   survival_output_file_path <- normalizePath(survival_output_file_path, mustWork = FALSE)
   pkg_stata_script_dir <- normalizePath(pkg_stata_script_dir, mustWork = TRUE)
+  survival_file_analysis_path <- normalizePath(
+    paste0(survival_work_dir, "/survival_file_analysis.dta"),
+    mustWork = FALSE
+  )
   
   mget(c("survival_work_dir", "stata_exe_path", "pkg_path",
          "entity_df_path", "ado_dir",
          "cancer_record_dataset_path", "national_population_life_table_path",
+         "survival_file_analysis_path",
          "survival_output_file_path", "pkg_stata_script_dir"))
 }
 
