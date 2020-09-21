@@ -28,12 +28,11 @@
 
 #' nordcancore::set_global_nordcan_settings(
 #'   work_dir = getwd(),
-#'   stat_cancer_record_count_year_first = 1953,
-#'   stat_cancer_record_count_year_last = 2018,
-#'   stat_prevalent_subject_count_year_first = 1953,
-#'   stat_prevalent_subject_count_year_last= 2018,
-#'   stat_survival_follow_up_year_first = 1953,
-#'   stat_survival_follow_up_year_last = 2018
+#'   participant_name = "Finland",
+#'   stat_cancer_record_count_first_year = 1953L,
+#'   stat_prevalent_subject_count_first_year = 1953L,
+#'   stat_survival_follow_up_first_year = 1953L,
+#'   stat_cancer_death_count_first_year = 1953L
 #' )
 #'
 #'
