@@ -1,5 +1,16 @@
 
 
+
+
+normalize_path <- function(x) {
+  normalizePath(
+    path = x, winslash = "/", mustWork = FALSE
+  )
+}
+
+
+
+
 call_stata_script <- function(
   stata_exe_path,
   stata_script_path
@@ -22,10 +33,10 @@ call_stata_script <- function(
   
   dir_of_stata_script <- dirname(stata_script_path)
   # protect in case of whitespaces in path
-  stata_exe_path <- normalizePath(settings[["stata_exe_path"]])
+  stata_exe_path <- normalize_path(settings[["stata_exe_path"]])
   stata_exe_path <- paste0("\"", stata_exe_path, "\"")
   # protect in case of whitespaces in path
-  stata_script_path <- normalizePath(stata_script_path)
+  stata_script_path <- normalize_path(stata_script_path)
   stata_script_path <- paste0("\"", stata_script_path, "\"")
   
   CMD <- sprintf(
@@ -104,18 +115,17 @@ nordcan_survival_settings <- function(stata_exe_path) {
     survival_work_dir, "/survival_statistics_output.dta"
   )
   
-  survival_work_dir <- normalizePath(survival_work_dir, mustWork = TRUE)
-  stata_exe_path <- normalizePath(stata_exe_path, mustWork = TRUE)
-  pkg_path <- normalizePath(pkg_path, mustWork = TRUE)
-  entity_df_path <- normalizePath(entity_df_path, mustWork = TRUE)
-  ado_dir <- normalizePath(ado_dir, mustWork = TRUE)
-  cancer_record_dataset_path <- normalizePath(cancer_record_dataset_path, mustWork = FALSE)
-  national_population_life_table_path <- normalizePath(national_population_life_table_path, mustWork = FALSE)
-  survival_output_file_path <- normalizePath(survival_output_file_path, mustWork = FALSE)
-  pkg_stata_script_dir <- normalizePath(pkg_stata_script_dir, mustWork = TRUE)
-  survival_file_analysis_path <- normalizePath(
-    paste0(survival_work_dir, "/survival_file_analysis.dta"),
-    mustWork = FALSE
+  survival_work_dir <- normalize_path(survival_work_dir)
+  stata_exe_path <- normalize_path(stata_exe_path)
+  pkg_path <- normalize_path(pkg_path)
+  entity_df_path <- normalize_path(entity_df_path)
+  ado_dir <- normalize_path(ado_dir)
+  cancer_record_dataset_path <- normalize_path(cancer_record_dataset_path)
+  national_population_life_table_path <- normalize_path(national_population_life_table_path)
+  survival_output_file_path <- normalize_path(survival_output_file_path)
+  pkg_stata_script_dir <- normalize_path(pkg_stata_script_dir)
+  survival_file_analysis_path <- normalize_path(
+    paste0(survival_work_dir, "/survival_file_analysis.dta")
   )
   
   mget(c("survival_work_dir", "stata_exe_path", "pkg_path",
