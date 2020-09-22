@@ -19,7 +19,7 @@ call_stata_script <- function(
   dbc::assert_prod_input_file_exists(stata_script_path)
   
   os <- .Platform$OS.type[1] == "windows"
-  flag <- ifelse(os, "/e", "-b")
+  flag <- ifelse(os, " /e /i ", " -b ")
   settings <- nordcan_survival_settings(stata_exe_path = stata_exe_path)
   
   # changing work directory appears to be necessary to ensure that results 
