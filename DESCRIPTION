@@ -7,7 +7,8 @@ Imports:
     utils,
     data.table,
     dbc,
-    nordcancore
+    nordcancore,
+    nordcanpreprocessing
 VignetteBuilder: knitr
 Suggests: 
   knitr, 
