@@ -14,7 +14,6 @@
 #' 
 #' full path to Stata executable
 #' @export
-#' @importFrom data.table .SD
 nordcanstat_survival <- function(
   cancer_record_dataset,
   national_population_life_table,

@@ -47,7 +47,6 @@ call_stata_script <- function(
 
 
 
-#' @importFrom utils maintainer
 raise_internal_error <- function(...) {
   stop(
     "Internal error: ",
