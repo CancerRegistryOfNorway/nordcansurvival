@@ -39,7 +39,7 @@ quietly {
 	capt noi which import
 	capt noi which export
 	
-	capt noi di fre
+	capt noi which fre
 	
 	noi di _n _dup(72) "-" 	
 }
