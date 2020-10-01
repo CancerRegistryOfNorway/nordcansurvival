@@ -3,9 +3,10 @@
 
 
 normalize_path <- function(x) {
-  normalizePath(
+  x <- normalizePath(
     path = x, winslash = "/", mustWork = FALSE
   )
+  gsub("[/\\]+", "/", x)
 }
 
 
