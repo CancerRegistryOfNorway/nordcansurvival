@@ -61,8 +61,8 @@ extract_define_survival_data <- function(
   
   ado_dir <- settings[["ado_dir"]]
   
-  survival_file_base <- paste0(settings[["survival_work_dir"]], "/survival_file_base.dta")
-  survival_file_analysis <- paste0(settings[["survival_work_dir"]], "/survival_file_analysis.dta")
+  survival_file_base <- settings[["survival_file_base_path"]]
+  survival_file_analysis <- settings[["survival_file_analysis_path"]]
   ## build do file based on 'dofile_template';
   dofile_contents <- sprintf( dofile_template,
                               settings[["survival_work_dir"]],
