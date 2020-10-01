@@ -27,9 +27,9 @@ call_stata_script <- function(
   # survival results for robustness
   old_wd <- getwd()
   on.exit({
-    setwd(old_wd)
+    setwd_stubbornly(old_wd)
   })
-  setwd(settings[["survival_work_dir"]])
+  setwd_stubbornly(settings[["survival_work_dir"]])
   
   dir_of_stata_script <- dirname(stata_script_path)
   # protect in case of whitespaces in path
@@ -136,6 +136,41 @@ nordcan_survival_settings <- function(stata_exe_path) {
          "survival_file_analysis_path","survival_file_base_path",
          "survival_output_file_path", "pkg_stata_script_dir"))
 }
+
+
+
+
+setwd_stubbornly <- function(
+  dir, 
+  n_max_tries = 100L, 
+  wait_seconds = 2.0 / n_max_tries
+) {
+  dbc::assert_is_character_nonNA_atom(dir)
+  dbc::assert_is_integer_nonNA_gtzero_atom(n_max_tries)
+  dbc::assert_is_number_nonNA_gtzero_atom(wait_seconds)
+  normal_dir <- normalizePath(dir, mustWork = FALSE)
+  
+  for (try_no in 1:n_max_tries) {
+    tryCatch(
+      setwd(dir = dir),
+      error = function(e) e,
+      warning = function(w) w
+    )
+    if (normalizePath(getwd()) == normal_dir) {
+      break
+    } else {
+      Sys.sleep(wait_seconds)
+    }
+  }
+  if (try_no == n_max_tries) {
+    stop("setwd_stubbornly could not set working directory to ",
+         deparse(dir), " after ", n_max_tries, " tries; does that directory ",
+         "exist?")
+  }
+  
+  return(invisible(getwd()))
+}
+
 
 
 
