@@ -65,11 +65,11 @@ survival_statistics <- function(
     stata_code_head, function(survival_statistics)
 
     survival_statistics ,	  /// Stata cmd defined in survival_statistics.ado
-    	infile(%s) 		        /// NC S dataset (dta)
-    	outfile(%s) 	        /// detailed ressults (dta)
-    	lifetable(%s) 	      /// National lifetable file (dta)
+    	infile(\"%s\") 		        /// NC S dataset (dta)
+    	outfile(\"%s\") 	        /// detailed ressults (dta)
+    	lifetable(\"%s\") 	      /// National lifetable file (dta)
     	estimand(%s)          /// What to estimate
-    	survival_entities(%s)
+    	survival_entities(\"%s\")
 
     stata_code_tail, function(survival_statistics)  // cleaning up etc
 

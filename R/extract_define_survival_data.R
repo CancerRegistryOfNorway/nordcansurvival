@@ -47,10 +47,10 @@ extract_define_survival_data <- function(
     stata_code_head, function(extract_define_survival_data)
 
     extract_define_survival_data , ///
-    	incidence_data(%s)             ///
-    	survival_file_base(%s)      /// 
-    	survival_file_analysis(%s)  /// 
-    	survival_entities(%s)
+    	incidence_data(\"%s\")             ///
+    	survival_file_base(\"%s\")      /// 
+    	survival_file_analysis(\"%s\")  /// 
+    	survival_entities(\"%s\")
 
     stata_code_tail, function(extract_define_survival_data)  // cleaning up etc
 
