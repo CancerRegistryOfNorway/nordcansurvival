@@ -38,11 +38,11 @@ extract_define_survival_data <- function(
   ## make template for Stata command file
   dofile_template <-
     "
-    cd %s                // set current working directory
-    adopath ++ %s        // add path to Stata programs
-    adopath ++ %s/utils  // add path to Stata programs
-    adopath ++ %s/1      // add path to Stata programs
-    adopath ++ %s/2      // add path to Stata programs
+    cd \"%s\"                // set current working directory
+    adopath ++ \"%s\"        // add path to Stata programs
+    adopath ++ \"%s/utils\"  // add path to Stata programs
+    adopath ++ \"%s/1\"      // add path to Stata programs
+    adopath ++ \"%s/2\"      // add path to Stata programs
 
     stata_code_head, function(extract_define_survival_data)
 
