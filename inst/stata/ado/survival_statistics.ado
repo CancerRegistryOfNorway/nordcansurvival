@@ -27,10 +27,13 @@ if ( strlower(substr("`lifetable'",-4,.)) != ".dta" ) {
 	
 	sort  _year  sex  _age
 	
-	mata : st_local("lifetable", pathrmsuffix("`lifetable'"))
+	mata : st_local("stub", pathrmsuffix("`lifetable'"))
 	
-	save "`lifetable'" , replace
+	save "`stub'" , replace
+	confirm file "`stub'.dta" 
+	local lifetable = "`stub'.dta" 
 }
+
 
 ********************************************************************************
 
