@@ -84,22 +84,10 @@ nordcanstat_survival <- function(
           "survival_statistics at ", 
           as.character(Sys.time()))
   t <- proc.time()
-  
-  # work-around on a bug: this converts life table csv -> dta but does not run
-  # the actual stata programme
-  nplt_csv_path <- settings[["national_population_life_table_path"]]
   survival_statistics(
     stata_exe_path =  settings[["stata_exe_path"]],
     cancer_record_dataset_path = settings[["survival_file_analysis_path"]],
-    national_population_life_table_path = nplt_csv_path,
-    estimand = "netsurvival"
-  )
-  # this runs the stata programme as well
-  nplt_dta_path <-  sub("\\.csv$", ".dta", nplt_csv_path)
-  survival_statistics(
-    stata_exe_path =  settings[["stata_exe_path"]],
-    cancer_record_dataset_path = settings[["survival_file_analysis_path"]],
-    national_population_life_table_path = nplt_dta_path,
+    national_population_life_table_path = settings[["national_population_life_table_path"]],
     estimand = "netsurvival"
   )
   message("* nordcansurvival::nordcanstat_survival: ",
