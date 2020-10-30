@@ -5,9 +5,30 @@ syntax ,			   ///
 	infile(string) 	   /// NC S dataset (dta)
 	outfile(string)    /// detailed ressults (dta)
 	lifetable(string)  /// National lifetable file (dta)
-	survival_entities(string)
+	[survival_entities(string)] ///
+	[country(string)] 
 
 ********************************************************************************
+
+findfile NC_survival_entity_table.dta
+local survival_entities `r(fn)'
+confirm file "`survival_entities'"
+ 
+********************************************************************************
+
+mata : st_local("infilename", pathbasename("`infile'"))
+
+if ( "`infilename'" == "NCS_NO_anonymous_example_data.dta" ) {
+	
+	local outfile = "NCS_NO_anonymous_example_data_result"
+	local dir NCS_NO_anonymous_example_data_result_dir
+	capture mkdir `dir'
+	local outfile = "`dir'\NCS_NO_anonymous_example_data_result"
+	local country = "NO"
+}
+
+********************************************************************************
+
 if ( "`estimand'" == "" ) {
 
 	local estimand = "netsurvival"
@@ -34,16 +55,17 @@ if ( strlower(substr("`lifetable'",-4,.)) != ".dta" ) {
 	local lifetable = "`stub'.dta" 
 }
 
-
+ 
 ********************************************************************************
 
 if ("`estimand'" == "netsurvival") {
 
-	net_survival ,			   			   ///
+	net_survival ,			   ///
 		infile("`infile'") 	               /// NC S dataset (dta)
 		outfile("`outfile'")               /// detailed ressults (dta)
 		lifetable("`lifetable'")           ///  National lifetable file (dta)*/
-		survival_entities("`survival_entities'")
+		survival_entities("`survival_entities'") ///
+		country("`country'")
 }
 
 end
@@ -60,7 +82,8 @@ syntax ,			   ///
 	infile(string) 	   /// NC S dataset (dta)
 	outfile(string)    /// detailed ressults (dta)
 	lifetable(string)  /// National lifetable file (dta)*/
-	survival_entities(string)
+	survival_entities(string) ///
+	[country(string)]
 	
 ********************************************************************************
 
@@ -69,7 +92,8 @@ qui fre entity , all descending
 local entities = r(lab_valid)
 
 tempname tmp
-capt mkdir `tmp'
+capture rmdir "`tmp'" 
+capt mkdir "`tmp'"
 
 local c = 0
 
@@ -81,15 +105,25 @@ qui foreach entity of local entities {
 
 	keep if entity == `entity'
 
-	nc_stnet , ///
-		lifetable(`lifetable') ///
+	noi di "stnet running for entity: `entity'"
+	
+	capture noi nc_stnet , ///
+		lifetable("`lifetable'") ///
 		outfile("`tmp'/entity_`entity'")
-
+		
+	if ( _rc ) {
+	
+		noi di  as err "stnet failed for entity: `entity'"
+	}	
+	
+	noi di "stnet finished for entity: `entity'"
+	
 	clear
 	mata : mata clear
 }
 
 ********************************************************************************
+
 cd `tmp'
 
 local files : dir . files "entity_*"
@@ -100,9 +134,11 @@ foreach file of local files {
 }
 
 cd ..
-rmdir `tmp'
+rmdir "`tmp'"
 
 ********************************************************************************
+
+generate country = "`country'"
 
 save "`outfile'" , replace
 
@@ -161,9 +197,6 @@ if ( "`brenner'" == "brenner" ) {
 	
 	confirm variable `iweight'
 	confirm variable `standstrata'
-	*confirm variable weight_err
-	*assert inlist(weight_err,0,1)
-	*keep if weight_err == 0
 }
 
 #delim ;
@@ -174,7 +207,7 @@ trim(itrim(
 
 `"
 
-stnet using "`lifetable'" `iweight_arg'   , 
+capture stnet using "`lifetable'" `iweight_arg'   , 
 	`standstrata_arg' 
 	`brenner'						    						
 	by(`by')                             
@@ -193,7 +226,13 @@ stnet using "`lifetable'" `iweight_arg'   ,
 
 mata: nc_stnet_cmd = st_strscalar("stnetcmd")
 mata: stata(nc_stnet_cmd) // run stnet 
-*nc_outfile_add_meta_data, outfile(`outfile')
+
+if (_rc) {
+	
+	local rc = _rc
+	error `rc'
+}
+
 
 end // nc_stnet
 
@@ -206,7 +245,7 @@ prog define nc_rs_format_export , nclass
 syntax , outfile(string) ///
 	survival_entities(string) 
 
-use "`outfile'" if end == 5 , clear
+use if inlist(end, 1 , 5 ) using "`outfile'" , clear
 
 ********************************************************************************
 * merge NC S data with NC S definitions
@@ -220,6 +259,18 @@ capt drop start n d dstarpoh ypoh dpoh dpohsq secns
 
 order entity entity_description_en entity_display_order
 sort entity_display_order period sex
+
+/*
+cns   double  %6.4f  Cumulative net survival (Pohar Perme et al)
+secns double  %6.4f  Standard error of CNS (Pohar Perme et al)
+locns double  %6.4f  Lower 95% CI for CNS (Pohar Perme et al)
+upcns double  %6.4f  Upper 95% CI for CNS (Pohar Perme et al)
+*/
+
+foreach v of varlist cns locns upcns {
+	
+	replace `v' = 100 * `v'
+}
 
 * TODO:
 *
@@ -239,8 +290,3 @@ end  // nc_rs_format_export
 }
 
 exit
-
-
- 
-
-

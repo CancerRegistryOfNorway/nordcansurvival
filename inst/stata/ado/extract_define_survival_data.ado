@@ -1,4 +1,3 @@
-
 capt prog drop extract_define_survival_data 
 prog define extract_define_survival_data , nclass
 
@@ -6,11 +5,47 @@ syntax , ///
 	incidence_data(string) ///
 	survival_file_base(string)   /// 
 	survival_file_analysis(string)   /// 
-	survival_entities(string) 
+	[survival_entities(string)] ///
+	[country(string)] 
 
 qui {
 	
 clear
+
+********************************************************************************
+* find entity table look-up file (NC_survival_entity_table.dta)
+********************************************************************************
+
+findfile NC_survival_entity_table.dta
+local survival_entities `r(fn)'
+confirm file "`survival_entities'"
+
+********************************************************************************
+* clean up old files
+********************************************************************************
+
+local bkdir oldfiles
+capture mkdir `bkdir'
+
+foreach fn in `survival_file_base' `survival_file_analysis' {
+	
+	local FN = "`fn'.dta"
+
+	capture confirm file `FN'
+
+	if ( _rc == 0 ) {
+		
+		use in 1 using `FN', clear
+		local filedate `c(filedate)' 
+		local Mons `c(Mons)'
+		local d = word("`filedate'", 1)
+		local m : list posof "`=word("`filedate'", 2)'" in Mons  
+		local y = word("`filedate'", 3)
+		local c = subinstr(word("`filedate'", 4),":", "",.)
+		copy `FN' `bkdir'/`y'`m'`d'`c'`fn' , replace
+		erase `FN'
+	}
+}
 
 ********************************************************************************
 * read NC incidence data
@@ -195,7 +230,7 @@ merge m:1 entity using "`survival_entities'", ///
 	/// assert(master match)
 	
 ********************************************************************************
-assert entity_levels == 30 if _merge == 1
+* assert entity_levels == 30 if _merge == 1
 drop entity_levels
 keep if _merge == 3           // "NC S data" <==> "NC S definitions" 
 drop _merge
@@ -240,6 +275,8 @@ confirm variable no_obs_in_strata
 
 compress
 sort entity pat	
+
+capt generate country = "`country'"
 
 noi save "`survival_file_base'" , replace
 
@@ -647,7 +684,9 @@ local vars
 	_t       
 	_t0
 	
-	weight_err 
+	weight_err
+	
+	country
 ;
 #delim cr	
 	

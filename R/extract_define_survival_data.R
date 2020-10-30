@@ -43,14 +43,15 @@ extract_define_survival_data <- function(
     adopath ++ \"%s/utils\"  // add path to Stata programs
     adopath ++ \"%s/1\"      // add path to Stata programs
     adopath ++ \"%s/2\"      // add path to Stata programs
-
+    adopath ++ \"%s/dta\"    // survival entities look-up file
+    
     stata_code_head, function(extract_define_survival_data)
 
     extract_define_survival_data , ///
     	incidence_data(\"%s\")             ///
     	survival_file_base(\"%s\")      /// 
     	survival_file_analysis(\"%s\")  /// 
-    	survival_entities(\"%s\")
+    	country(\"%s\")
 
     stata_code_tail, function(extract_define_survival_data)  // cleaning up etc
 
@@ -66,11 +67,11 @@ extract_define_survival_data <- function(
   ## build do file based on 'dofile_template';
   dofile_contents <- sprintf( dofile_template,
                               settings[["survival_work_dir"]],
-                              ado_dir,ado_dir,ado_dir,ado_dir,
+                              ado_dir,ado_dir,ado_dir,ado_dir,ado_dir,
                               cancer_record_dataset_path,
                               survival_file_base,
                               survival_file_analysis,
-                              settings[["entity_df_path"]]
+                              nordcancore::get_global_nordcan_settings()$participant_name
   )
   
   ## save the  do file

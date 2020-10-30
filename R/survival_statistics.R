@@ -62,7 +62,8 @@ survival_statistics <- function(
     adopath ++ \"%s/utils\"  // add path to Stata programs
     adopath ++ \"%s/1\"      // add path to Stata programs
     adopath ++ \"%s/2\"      // add path to Stata programs
-
+    adopath ++ \"%s/dta\"    // survival entities look-up file
+    
     stata_code_head, function(survival_statistics)
 
     survival_statistics ,	  /// Stata cmd defined in survival_statistics.ado
@@ -70,7 +71,7 @@ survival_statistics <- function(
     	outfile(\"%s\") 	        /// detailed ressults (dta)
     	lifetable(\"%s\") 	      /// National lifetable file (dta)
     	estimand(%s)          /// What to estimate
-    	survival_entities(\"%s\")
+    	country(\"%s\")
 
     stata_code_tail, function(survival_statistics)  // cleaning up etc
 
@@ -96,12 +97,12 @@ survival_statistics <- function(
   ado_dir <- settings[["ado_dir"]]
   dofile_contents <- sprintf( dofile_template,
                               survival_work_dir,
-                              ado_dir, ado_dir, ado_dir, ado_dir,
+                              ado_dir, ado_dir, ado_dir, ado_dir,ado_dir,
                               cancer_record_dataset_path,
                               output_file_path,
                               national_population_life_table_path,
                               estimand, 
-                              settings[["entity_df_path"]]
+                              nordcancore::get_global_nordcan_settings()$participant_name
   )
   
   ## save the  do file
