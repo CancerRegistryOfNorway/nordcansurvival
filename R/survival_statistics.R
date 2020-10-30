@@ -32,7 +32,8 @@
 #'   stat_cancer_record_count_first_year = 1953L,
 #'   stat_prevalent_subject_count_first_year = 1953L,
 #'   stat_survival_follow_up_first_year = 1953L,
-#'   stat_cancer_death_count_first_year = 1953L
+#'   stat_cancer_death_count_first_year = 1953L,
+#'   regional_data_first_year = 1953L
 #' )
 #'
 #'
