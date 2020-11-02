@@ -43,7 +43,7 @@ extract_define_survival_data <- function(
     adopath ++ \"%s/utils\"  // add path to Stata programs
     adopath ++ \"%s/1\"      // add path to Stata programs
     adopath ++ \"%s/2\"      // add path to Stata programs
-    adopath ++ \"%s/dta\"    // survival entities look-up file
+    adopath ++ \"%s\"    // survival entities look-up file
     
     stata_code_head, function(extract_define_survival_data)
 
@@ -67,7 +67,8 @@ extract_define_survival_data <- function(
   ## build do file based on 'dofile_template';
   dofile_contents <- sprintf( dofile_template,
                               settings[["survival_work_dir"]],
-                              ado_dir,ado_dir,ado_dir,ado_dir,ado_dir,
+                              ado_dir,ado_dir,ado_dir,ado_dir,
+                              settings[["entity_table_dir"]],
                               cancer_record_dataset_path,
                               survival_file_base,
                               survival_file_analysis,

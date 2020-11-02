@@ -62,7 +62,7 @@ survival_statistics <- function(
     adopath ++ \"%s/utils\"  // add path to Stata programs
     adopath ++ \"%s/1\"      // add path to Stata programs
     adopath ++ \"%s/2\"      // add path to Stata programs
-    adopath ++ \"%s/dta\"    // survival entities look-up file
+    adopath ++ \"%s\"    // survival entities look-up file
     
     stata_code_head, function(survival_statistics)
 
@@ -97,7 +97,8 @@ survival_statistics <- function(
   ado_dir <- settings[["ado_dir"]]
   dofile_contents <- sprintf( dofile_template,
                               survival_work_dir,
-                              ado_dir, ado_dir, ado_dir, ado_dir,ado_dir,
+                              ado_dir, ado_dir, ado_dir, ado_dir,
+                              settings[["entity_table_dir"]],
                               cancer_record_dataset_path,
                               output_file_path,
                               national_population_life_table_path,

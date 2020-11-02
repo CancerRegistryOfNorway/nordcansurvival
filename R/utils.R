@@ -91,10 +91,10 @@ nordcan_survival_settings <- function(stata_exe_path) {
     }
   }
   
-  entity_df_path <- paste0(pkg_path, "/stata/dta/NC_survival_entity_table.dta")
-  if (!file.exists(entity_df_path)) {
+  entity_table_dir <- paste0(pkg_path, "/stata/dta/")
+  if (!dir.exists(entity_table_dir)) {
     raise_internal_error(
-      "no such file: ", deparse(entity_df_path)
+      "no such file: ", deparse(entity_table_dir)
     )
   }
   ado_dir <- paste0(pkg_path, "/stata/ado")
@@ -118,7 +118,7 @@ nordcan_survival_settings <- function(stata_exe_path) {
   survival_work_dir <- normalize_path(survival_work_dir)
   stata_exe_path <- normalize_path(stata_exe_path)
   pkg_path <- normalize_path(pkg_path)
-  entity_df_path <- normalize_path(entity_df_path)
+  entity_table_dir <- normalize_path(entity_table_dir)
   ado_dir <- normalize_path(ado_dir)
   cancer_record_dataset_path <- normalize_path(cancer_record_dataset_path)
   national_population_life_table_path <- normalize_path(national_population_life_table_path)
@@ -132,7 +132,7 @@ nordcan_survival_settings <- function(stata_exe_path) {
   )
   
   mget(c("survival_work_dir", "stata_exe_path", "pkg_path",
-         "entity_df_path", "ado_dir",
+         "entity_table_dir", "ado_dir",
          "cancer_record_dataset_path", "national_population_life_table_path",
          "survival_file_analysis_path","survival_file_base_path",
          "survival_output_file_path", "pkg_stata_script_dir"))
