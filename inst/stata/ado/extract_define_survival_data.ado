@@ -29,7 +29,7 @@ capture mkdir `bkdir'
 
 foreach fn in `survival_file_base' `survival_file_analysis' {
 	
-	local FN = "`fn'.dta"
+	local FN = cond(substr("`fn'",-4,.)==".dta", "`fn'", "`fn'.dta")   
 
 	capture confirm file `FN'
 
@@ -45,6 +45,8 @@ foreach fn in `survival_file_base' `survival_file_analysis' {
 		copy `FN' `bkdir'/`y'`m'`d'`c'`fn' , replace
 		erase `FN'
 	}
+	
+	clear
 }
 
 ********************************************************************************
