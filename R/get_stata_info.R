@@ -9,6 +9,7 @@
 #' 
 #' @param stata_exe_path Path to Stata executable. In NORDAN taken from the settings by default.
 #' 
+#' @return Return Stata information to terminal and save as a log file. 
 #' 
 #' @export
 #' @return
