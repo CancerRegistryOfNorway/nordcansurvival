@@ -22,7 +22,7 @@
 #' 
 #' path to a dataset of cancer records
 #' @export
-#' @return
+#' @return Two dataset for computing survival analysis. 
 #' 
 extract_define_survival_data <- function(
   cancer_record_dataset_path, 
