@@ -14,7 +14,7 @@ extract_define_survival_data(cancer_record_dataset_path, stata_exe_path = NULL)
 path to a dataset of cancer records}
 }
 \value{
-
+Two dataset for computing survival analysis.
 }
 \description{
 Run a Stata script on a dataset saved on-disk to prepare a two dataset of

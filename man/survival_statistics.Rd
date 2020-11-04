@@ -21,6 +21,8 @@ survival_statistics(
 \item{estimand}{defaults to "netsurvival" the only option so far}
 }
 \value{
+survival analysis output in csv and dta format.
+
 
 }
 \description{
@@ -40,8 +42,12 @@ in each strata.
 
 
 library(nordcansurvival)
-infile <-  paste0(system.file(package = "nordcansurvival"), "/Stata/demo/NCS_NO_anonymous_example_data.dta")
-lifetable <- paste0(system.file(package = "nordcansurvival"), "/Stata/demo/NO_2018_lifetable.dta")
+infile <-  paste0(system.file(package = "nordcansurvival"), 
+                  "/Stata/demo/NCS_NO_anonymous_example_data.dta")
+lifetable <- paste0(system.file(package = "nordcansurvival"), 
+                    "/Stata/demo/NO_2018_lifetable.dta")
+
+
 nordcancore::set_global_nordcan_settings(
   work_dir = getwd(),
   participant_name = "Finland",

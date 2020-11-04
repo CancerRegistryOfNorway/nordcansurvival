@@ -10,6 +10,8 @@ get_stata_info(stata_exe_path)
 \item{stata_exe_path}{Path to Stata executable. In NORDAN taken from the settings by default.}
 }
 \value{
+Return Stata information to terminal and save as a log file.
+
 
 }
 \description{
