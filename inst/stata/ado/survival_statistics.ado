@@ -281,6 +281,8 @@ foreach v of varlist cns locns upcns {
 
 local outfile = subinstr("`outfile'", ".dta", ".csv", 1 )
 
+capture rename period period_5 // ad-hoc
+
 export delimited using "`outfile'" , /// std encoding UTF-8
 	delimiter(";") ///
 	replace
