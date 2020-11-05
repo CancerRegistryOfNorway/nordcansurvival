@@ -13,11 +13,15 @@
 #' @param stata_exe_path `[character]` (mandatory, no default)
 #' 
 #' full path to Stata executable
+#' @param subset `[NULL, logical, integer]` (optional, default `NULL`)
+#' 
+#' see [nordcancore::handle_subset_arg]
 #' @export
 nordcanstat_survival <- function(
   cancer_record_dataset,
   national_population_life_table,
-  stata_exe_path = NULL
+  stata_exe_path = NULL,
+  subset = NULL
 ) {
   t_start <- proc.time()
   dbc::assert_is_data.frame_with_required_names(
@@ -33,6 +37,10 @@ nordcanstat_survival <- function(
   settings <- nordcan_survival_settings(
     stata_exe_path = stata_exe_path
   )
+  gs <- nordcancore::get_global_nordcan_settings()
+  first_year <- gs[["stat_survival_follow_up_first_year"]]
+  
+  subset <- nordcancore::handle_subset_arg(dataset = cancer_record_dataset)
   
   # prepare working directory contents -----------------------------------------
   message("* nordcansurvival::nordcanstat_survival: writing life table to ",
@@ -51,8 +59,14 @@ nordcanstat_survival <- function(
   message("* nordcansurvival::nordcanstat_survival: writing ",
           "cancer_record_dataset to ",
           deparse(settings[["cancer_record_dataset_path"]]), "...")
+  mandatory_subset <- cancer_record_dataset[["excl_surv_total"]] == 0L & 
+    cancer_record_dataset[["period_5"]] >= first_year
+  subset <- nordcancore::subset_and(
+    subset,
+    mandatory_subset
+  )
   crd <- cancer_record_dataset[
-    cancer_record_dataset[["excl_surv_total"]] == 0L,
+    subset,
     nordcancore::nordcan_metadata_column_name_set(
       "column_name_set_survival"
     ),

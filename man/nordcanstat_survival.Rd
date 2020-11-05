@@ -7,7 +7,8 @@
 nordcanstat_survival(
   cancer_record_dataset,
   national_population_life_table,
-  stata_exe_path = NULL
+  stata_exe_path = NULL,
+  subset = NULL
 )
 }
 \arguments{
@@ -22,6 +23,10 @@ the national population life table}
 \item{stata_exe_path}{`[character]` (mandatory, no default)
 
 full path to Stata executable}
+
+\item{subset}{`[NULL, logical, integer]` (optional, default `NULL`)
+
+see [nordcancore::handle_subset_arg]}
 }
 \description{
 Compute survival statistics for NORDCAN. Data is written onto disk and 
