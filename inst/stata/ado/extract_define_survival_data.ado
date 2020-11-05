@@ -9,7 +9,9 @@ syntax , ///
 	[country(string)] 
 
 qui {
-	
+
+capture rename period_5 period // ad-hoc
+
 clear
 
 ********************************************************************************
