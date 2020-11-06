@@ -130,6 +130,10 @@ nordcanstat_survival <- function(
   )
   
   # final touches --------------------------------------------------------------
+  if ("period" %in% names(output)) {
+    data.table::setnames(output, "period", "period_5")
+  }
+  
   message("* nordcansurvival::nordcanstat_survival: finished whole run; ",
           data.table::timetaken(t_start))
   return(output[])
