@@ -72,6 +72,10 @@ nordcanstat_survival <- function(
     ),
     with = FALSE
   ]
+  if ("period_5" %in% names(crd)) {
+    # temporary work-around
+    data.table::setnames(crd, "period_5", "period")
+  }
   data.table::fwrite(
     x = crd,
     file = settings[["cancer_record_dataset_path"]],
