@@ -117,8 +117,8 @@ nordcanstat_survival <- function(
     outfile = "survival_statistics_period_10",
     estimand = "netsurvival",
     by = c("entity", "sex", "period_10"),
-    standstrata = "agegroup_ICSS_5",
-    iweight = "weights_ICSS_5"
+    standstrata = "agegroup_ICSS_3",
+    iweight = "weights_ICSS_3"
   )
   message("* nordcansurvival::nordcanstat_survival: ",
           "survival_statistics finished; ", 
