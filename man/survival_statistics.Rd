@@ -8,7 +8,11 @@ survival_statistics(
   stata_exe_path = NULL,
   cancer_record_dataset_path,
   national_population_life_table_path,
-  estimand = "netsurvival"
+  outfile = "survival_statistics",
+  estimand = "netsurvival",
+  by = c("entity", "sex", "period_5"),
+  standstrata = "agegroup_ICSS_5",
+  iweight = "weights_ICSS_5"
 )
 }
 \arguments{
@@ -19,6 +23,14 @@ survival_statistics(
 \item{national_population_life_table_path}{(mandatory, default by NORDCAN system)}
 
 \item{estimand}{defaults to "netsurvival" the only option so far}
+
+\item{by}{names of columns in file `cancer_record_dataset_path` by which to stratify
+results}
+
+\item{standstrata}{names of columns in file `cancer_record_dataset_path` by which to standardise
+results}
+
+\item{iweight}{name of weight column in file `cancer_record_dataset_path`}
 }
 \value{
 survival analysis output in csv and dta format.

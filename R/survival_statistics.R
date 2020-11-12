@@ -18,6 +18,20 @@
 #' @param estimand defaults to "netsurvival" the only option so far
 #' @param stata_exe_path This is set in the NORDCAN settings by default
 #' 
+#' @param by 
+#' 
+#' names of columns in file `cancer_record_dataset_path` by which to stratify
+#' results
+#' 
+#' @param standstrata
+#' 
+#' names of columns in file `cancer_record_dataset_path` by which to standardise
+#' results
+#' 
+#' @param iweight
+#' 
+#' name of weight column in file `cancer_record_dataset_path`
+#' 
 #' @return survival analysis output in csv and dta format.
 #' @examples 
 #' 
@@ -50,11 +64,19 @@ survival_statistics <- function(
   stata_exe_path = NULL,
   cancer_record_dataset_path,
   national_population_life_table_path,
-  estimand = "netsurvival"
+  outfile = "survival_statistics",
+  estimand = "netsurvival",
+  by = c("entity", "sex", "period_5"),
+  standstrata = "agegroup_ICSS_5",
+  iweight = "weights_ICSS_5"
 ) {
   dbc::assert_prod_input_file_exists(cancer_record_dataset_path)
   dbc::assert_prod_input_file_exists(national_population_life_table_path)
 
+  dbc::assert_is_character_nonNA_vector(by)
+  dbc::assert_is_character_nonNA_atom(strandstrata)
+  dbc::assert_is_character_nonNA_atom(iweight)
+  
   ## make template for Stata commad file
   dofile_template <-
     "
@@ -72,7 +94,10 @@ survival_statistics <- function(
     	outfile(\"%s\") 	        /// detailed ressults (dta)
     	lifetable(\"%s\") 	      /// National lifetable file (dta)
     	estimand(%s)          /// What to estimate
-    	country(\"%s\")
+    	country(\"%s\")       ///
+    	by(%s)                 ///
+      standstrata(%s)     ///  
+      iweight(%s)  
 
     stata_code_tail, function(survival_statistics)  // cleaning up etc
 
@@ -92,25 +117,28 @@ survival_statistics <- function(
                  national_population_life_table_path))
   }
   
-  output_file_path <- settings[["survival_output_file_path"]]
   survival_work_dir <- settings[["survival_work_dir"]]
   ## build do file based on 'dofile_template';
   ado_dir <- settings[["ado_dir"]]
-  dofile_contents <- sprintf( dofile_template,
-                              survival_work_dir,
-                              ado_dir, ado_dir, ado_dir, ado_dir,
-                              settings[["entity_table_dir"]],
-                              cancer_record_dataset_path,
-                              output_file_path,
-                              national_population_life_table_path,
-                              estimand, 
-                              nordcancore::get_global_nordcan_settings()$participant_name
+  dofile_contents <- sprintf( 
+    dofile_template,
+    survival_work_dir,
+    ado_dir, ado_dir, ado_dir, ado_dir,
+    settings[["entity_table_dir"]],
+    cancer_record_dataset_path,
+    outfile,
+    national_population_life_table_path,
+    estimand, 
+    nordcancore::get_global_nordcan_settings()$participant_name,
+    paste0(by, collapse = " "),
+    standstrata,
+    iweight
   )
   
   ## save the  do file
   dofile_name <- paste0(survival_work_dir, "/survival_statistics.do")
   cat(dofile_contents, file = dofile_name)
-
+  
   ## Run command
   call_stata_script(
     stata_exe_path = settings[["stata_exe_path"]], 

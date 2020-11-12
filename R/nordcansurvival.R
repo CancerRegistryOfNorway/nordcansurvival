@@ -72,10 +72,6 @@ nordcanstat_survival <- function(
     ),
     with = FALSE
   ]
-  if ("period_5" %in% names(crd)) {
-    # temporary work-around
-    data.table::setnames(crd, "period_5", "period")
-  }
   data.table::fwrite(
     x = crd,
     file = settings[["cancer_record_dataset_path"]],
@@ -102,11 +98,27 @@ nordcanstat_survival <- function(
           "survival_statistics at ", 
           as.character(Sys.time()))
   t <- proc.time()
+  # 5-year periods
   survival_statistics(
     stata_exe_path =  settings[["stata_exe_path"]],
     cancer_record_dataset_path = settings[["survival_file_analysis_path"]],
     national_population_life_table_path = settings[["national_population_life_table_path"]],
-    estimand = "netsurvival"
+    outfile = "survival_statistics_period_5",
+    estimand = "netsurvival",
+    by = c("entity", "sex", "period_5"),
+    strandstrata = "agegroup_ICSS_5",
+    iweight = "weights_ICSS_5"
+  )
+  # 10-year periods
+  survival_statistics(
+    stata_exe_path =  settings[["stata_exe_path"]],
+    cancer_record_dataset_path = settings[["survival_file_analysis_path"]],
+    national_population_life_table_path = settings[["national_population_life_table_path"]],
+    outfile = "survival_statistics_period_10",
+    estimand = "netsurvival",
+    by = c("entity", "sex", "period_10"),
+    strandstrata = "agegroup_ICSS_5",
+    iweight = "weights_ICSS_5"
   )
   message("* nordcansurvival::nordcanstat_survival: ",
           "survival_statistics finished; ", 
@@ -123,20 +135,21 @@ nordcanstat_survival <- function(
   }
   message("* nordcansurvival::nordcanstat_survival: reading in results from ",
           "survival_statistics")
-  output <- data.table::fread(
-    file = gsub("\\.dta", ".csv", settings[["survival_output_file_path"]]), 
+  survival_statistics_dataset_period_5 <- data.table::fread(
+    file = "survival/survival_statistics_period_5",
+    sep = ";", 
+    encoding = "UTF-8"
+  )
+  survival_statistics_dataset_period_10 <- data.table::fread(
+    file = "survival/survival_statistics_period_10",
     sep = ";", 
     encoding = "UTF-8"
   )
   
   # final touches --------------------------------------------------------------
-  if ("period" %in% names(output)) {
-    data.table::setnames(output, "period", "period_5")
-  }
-  
   message("* nordcansurvival::nordcanstat_survival: finished whole run; ",
           data.table::timetaken(t_start))
-  return(output[])
+  return(mget(c("survival_statistics_dataset_period_5", "survival_statistics_dataset_period_10")))
 }
 
 
