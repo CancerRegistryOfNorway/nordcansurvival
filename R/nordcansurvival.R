@@ -106,7 +106,7 @@ nordcanstat_survival <- function(
     outfile = "survival_statistics_period_5",
     estimand = "netsurvival",
     by = c("entity", "sex", "period_5"),
-    strandstrata = "agegroup_ICSS_5",
+    standstrata = "agegroup_ICSS_5",
     iweight = "weights_ICSS_5"
   )
   # 10-year periods
@@ -117,7 +117,7 @@ nordcanstat_survival <- function(
     outfile = "survival_statistics_period_10",
     estimand = "netsurvival",
     by = c("entity", "sex", "period_10"),
-    strandstrata = "agegroup_ICSS_5",
+    standstrata = "agegroup_ICSS_5",
     iweight = "weights_ICSS_5"
   )
   message("* nordcansurvival::nordcanstat_survival: ",

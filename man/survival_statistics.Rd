@@ -22,6 +22,8 @@ survival_statistics(
 
 \item{national_population_life_table_path}{(mandatory, default by NORDCAN system)}
 
+\item{outfile}{path where to write result file}
+
 \item{estimand}{defaults to "netsurvival" the only option so far}
 
 \item{by}{names of columns in file `cancer_record_dataset_path` by which to stratify

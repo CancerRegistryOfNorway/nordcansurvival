@@ -15,6 +15,10 @@
 #'
 #' @param cancer_record_dataset_path path to a dataset of cancer records
 #' @param national_population_life_table_path (mandatory, default by NORDCAN system)
+#' @param outfile
+#' 
+#' path where to write result file
+#' 
 #' @param estimand defaults to "netsurvival" the only option so far
 #' @param stata_exe_path This is set in the NORDCAN settings by default
 #' 
@@ -74,7 +78,7 @@ survival_statistics <- function(
   dbc::assert_prod_input_file_exists(national_population_life_table_path)
 
   dbc::assert_is_character_nonNA_vector(by)
-  dbc::assert_is_character_nonNA_atom(strandstrata)
+  dbc::assert_is_character_nonNA_atom(standstrata)
   dbc::assert_is_character_nonNA_atom(iweight)
   
   ## make template for Stata commad file
