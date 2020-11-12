@@ -103,7 +103,7 @@ nordcanstat_survival <- function(
     stata_exe_path =  settings[["stata_exe_path"]],
     cancer_record_dataset_path = settings[["survival_file_analysis_path"]],
     national_population_life_table_path = settings[["national_population_life_table_path"]],
-    outfile = "survival_statistics_period_5",
+    outfile = "survival_statistics_period_5_dataset",
     estimand = "netsurvival",
     by = c("entity", "sex", "period_5"),
     standstrata = "agegroup_ICSS_5",
@@ -121,7 +121,7 @@ nordcanstat_survival <- function(
     stata_exe_path =  settings[["stata_exe_path"]],
     cancer_record_dataset_path = settings[["survival_file_analysis_path"]],
     national_population_life_table_path = settings[["national_population_life_table_path"]],
-    outfile = "survival_statistics_period_10",
+    outfile = "survival_statistics_period_10_dataset",
     estimand = "netsurvival",
     by = c("entity", "sex", "period_10"),
     standstrata = "agegroup_ICSS_3",
@@ -134,7 +134,7 @@ nordcanstat_survival <- function(
   # the stata script has written its output into a new file. read it into R ----
   output_file_path_period_5 <- paste0(
     settings[["survival_work_dir"]], "/",
-    "survival_statistics_period_5.csv"
+    "survival_statistics_period_5_dataset.csv"
   ) 
   message("* nordcansurvival::nordcanstat_survival: reading in results from ",
           "survival_statistics")
@@ -146,13 +146,13 @@ nordcanstat_survival <- function(
       "information"
     )
   }
-  survival_statistics_dataset_period_5 <- data.table::fread(
+  survival_statistics_period_5_dataset <- data.table::fread(
     file = output_file_path_period_5,
     encoding = "UTF-8"
   )
   output_file_path_period_10 <- paste0(
     settings[["survival_work_dir"]], "/", 
-    "survival_statistics_period_10.csv"
+    "survival_statistics_period_10_dataset.csv"
   )
   if (!file.exists(output_file_path_period_10)) {
     stop(
@@ -162,7 +162,7 @@ nordcanstat_survival <- function(
       "information"
     )
   }
-  survival_statistics_dataset_period_10 <- data.table::fread(
+  survival_statistics_period_10_dataset <- data.table::fread(
     file = output_file_path_period_10,
     encoding = "UTF-8"
   )
@@ -170,7 +170,9 @@ nordcanstat_survival <- function(
   # final touches --------------------------------------------------------------
   message("* nordcansurvival::nordcanstat_survival: finished whole run; ",
           data.table::timetaken(t_start))
-  return(mget(c("survival_statistics_dataset_period_5", "survival_statistics_dataset_period_10")))
+  ds_nsm <- c("survival_statistics_period_5_dataset", 
+              "survival_statistics_period_10_dataset")
+  return(mget(ds_nsm))
 }
 
 

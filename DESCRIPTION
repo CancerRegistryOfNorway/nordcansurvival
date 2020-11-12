@@ -1,7 +1,7 @@
 Package: nordcansurvival
 Type: Package
 Title: NORDCAN Survival Statistics
-Version: 0.5.2.9904
+Version: 0.5.2.9905
 Depends: R (>= 4.0.0)
 Author: Bjarte Aagnes, Huidong Tian, Joonas Miettinen
 Imports: 
