@@ -95,7 +95,7 @@ nordcanstat_survival <- function(
   
   # compile survival statistics using stata ------------------------------------
   message("* nordcansurvival::nordcanstat_survival: started running ",
-          "survival_statistics at ", 
+          "survival_statistics for 5-year periods at ", 
           as.character(Sys.time()))
   t <- proc.time()
   # 5-year periods
@@ -109,6 +109,13 @@ nordcanstat_survival <- function(
     standstrata = "agegroup_ICSS_5",
     iweight = "weights_ICSS_5"
   )
+  message("* nordcansurvival::nordcanstat_survival: ",
+          "survival_statistics finished; ", 
+          data.table::timetaken(t))
+  message("* nordcansurvival::nordcanstat_survival: started running ",
+          "survival_statistics for 10-year periods at ", 
+          as.character(Sys.time()))
+  t <- proc.time()
   # 10-year periods
   survival_statistics(
     stata_exe_path =  settings[["stata_exe_path"]],
@@ -125,24 +132,38 @@ nordcanstat_survival <- function(
           data.table::timetaken(t))
   
   # the stata script has written its output into a new file. read it into R ----
-  if (!file.exists(settings[["survival_output_file_path"]])) {
+  output_file_path_period_5 <- paste0(
+    settings[["survival_work_dir"]], "/",
+    "survival_statistics_period_5.csv"
+  ) 
+  message("* nordcansurvival::nordcanstat_survival: reading in results from ",
+          "survival_statistics")
+  if (!file.exists(output_file_path_period_5)) {
     stop(
-      "expected file ", deparse(settings[["survival_output_file_path"]]),
+      "expected file ", deparse(output_file_path_period_5),
       " to be created by survival function, but it did not exist; see log ",
       "files in ", deparse(settings[["survival_work_dir"]]), " for more ",
       "information"
     )
   }
-  message("* nordcansurvival::nordcanstat_survival: reading in results from ",
-          "survival_statistics")
   survival_statistics_dataset_period_5 <- data.table::fread(
-    file = "survival/survival_statistics_period_5",
-    sep = ";", 
+    file = output_file_path_period_5,
     encoding = "UTF-8"
   )
+  output_file_path_period_10 <- paste0(
+    settings[["survival_work_dir"]], "/", 
+    "survival_statistics_period_10.csv"
+  )
+  if (!file.exists(output_file_path_period_10)) {
+    stop(
+      "expected file ", deparse(output_file_path_period_10),
+      " to be created by survival function, but it did not exist; see log ",
+      "files in ", deparse(settings[["survival_work_dir"]]), " for more ",
+      "information"
+    )
+  }
   survival_statistics_dataset_period_10 <- data.table::fread(
-    file = "survival/survival_statistics_period_10",
-    sep = ";", 
+    file = output_file_path_period_10,
     encoding = "UTF-8"
   )
   
