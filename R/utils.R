@@ -91,7 +91,7 @@ nordcan_survival_settings <- function(stata_exe_path) {
     }
   }
   
-  entity_table_dir <- paste0(pkg_path, "/stata/dta/")
+  entity_table_dir <- paste0(pkg_path, "/stata/")
   if (!dir.exists(entity_table_dir)) {
     raise_internal_error(
       "no such file: ", deparse(entity_table_dir)
