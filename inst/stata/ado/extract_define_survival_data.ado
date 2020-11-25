@@ -1,4 +1,4 @@
-capt prog drop extract_define_survival_data 
+capt prog drop extract_define_survival_data
 prog define extract_define_survival_data , nclass
 
 syntax , ///
@@ -67,7 +67,7 @@ noi save "`survival_file_base'" , replace
 
 nc_define_fup, result(`survival_file_analysis') 
 
-survival_file_analysis, survival_file_analysis(`survival_file_analysis') 	
+noi survival_file_analysis, survival_file_analysis(`survival_file_analysis') 	
 
 } // quietly
 
@@ -384,17 +384,28 @@ syntax , ///
 	nobs(integer) ///
 	tot(integer)
  	
-tempvar csum_cases fail
+tempvar f 
 
-bysort `groups' `agegr' (spid) : gen `csum_cases' = sum(!mi(`idvar'))
-bysort `groups' `agegr' (spid) : gen byte `fail' = ( `csum_cases'[_N] < `nobs' )
-bysort `groups' : replace `fail' = sum(`fail') 
-bysort `groups' : gen byte `agegr'_NOK = ( `fail'[_N] > 0 )   
+* failure 1A minimum `nobs' obs in any age group
+* failure 1B all age groups present  (1, 2, ..., r(max) )
 
-lab var `agegr'_NOK "mark groups with n < `nobs' in any one stratum"
+qui su `agegr', meanonly  // need global maximum
+ 
+bysort `groups' `agegr' (`idvar') : g byte `f' = _N < `nobs'
 
+by `groups' (`agegr' `idvar') : ///
+	replace `f' = sum( cond( `f', `f', ///
+						cond(_n==1, `agegr'!= 1, ///
+							cond(_n==_N, `agegr'!= r(max), ///
+								`agegr'-`agegr'[_n-1] > 1 )))) 
+
+by `groups' (`agegr' `idvar') : g byte `agegr'_NOK =  `f'[_N] > 0 
+							
+* failure 2 total number in group above criterium  
+ 
 bysort `groups' : gen byte `agegr'_tot_NOK = ( _N < `tot' )
 
+lab var  `agegr'_NOK "mark groups with n < `nobs' in any one stratum"
 lab var  `agegr'_tot_NOK "mark groups with N < `tot'"
 
 end // mark_small_n_strata 
@@ -844,6 +855,7 @@ assert "`: properties nc_stset '" == "NORDCAN survival definition"
 end // define nc_stset
 }
 { /* sub survival_file_analysis */
+capt prog drop  survival_file_analysis 
 prog define survival_file_analysis 
 
 syntax, ///
@@ -865,14 +877,8 @@ local vars
 	dead_fup
 	end_of_followup
 	end_fup    
-	dead_fup  
-	
-	_st
-	_d       
-	_origin  
-	_t       
-	_t0
-	
+	dead_fup 
+	_st _d _origin _t _t0
 	country
 ;
 #delim cr	
@@ -888,15 +894,27 @@ else {
 }
 
 ********************************************************************************
+* saving 10 and 5 year calendar period files
+********************************************************************************
+
+local including "min(30) in group, and min(3) in any agestratum within group."
 
 keep if ( agegroup_ICSS_3_NOK == 0 )  & ( agegroup_ICSS_3_tot_NOK == 0 )
-
-label data "10-year calendar periods. 3-age-groups. Including groups with min(30) and min(3) in any agestratum within group"
+label data "10-year calendar periods. 3-age-groups. `including' "
 noi save "`survival_file_analysis'_10" , replace
+
+tempvar only_left_truncated
 keep if ( agegroup_ICSS_5_NOK == 0 )  & ( agegroup_ICSS_5_tot_NOK == 0 )
-drop  agegroup_ICSS_3 weights_ICSS_3 period_10  *NOK
-label data "5-year calendar periods. 5-age-groups. Including groups with min(30) and min(3) in any agestratum within group"
+bysort period_5 sex entity (_t0) : gen byte `only_left_truncated' = _t0[1] > 0 
+drop if `only_left_truncated'
+
+drop  agegroup_ICSS_3 weights_ICSS_3 period_10 *NOK
+label data "5-year calendar periods. 5-age-groups. `including'"
 noi save "`survival_file_analysis'_5" , replace
+
+use "`survival_file_analysis'_10" , clear
+drop if _t0 > 0  // left truncated pseudo observations
+save "`survival_file_analysis'_10" , replace  // last period "complete approach"  
 
 ********************************************************************************
 
