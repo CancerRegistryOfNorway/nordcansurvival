@@ -8,8 +8,8 @@ Imports:
     utils,
     data.table,
     dbc,
-    nordcancore (== 1.0.1),
-    nordcanpreprocessing (== 1.0.1)
+    nordcancore (>= 1.0.2),
+    nordcanpreprocessing (>= 1.0.2)
 VignetteBuilder: knitr
 Suggests: 
   knitr, 
