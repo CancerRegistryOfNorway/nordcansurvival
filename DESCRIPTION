@@ -1,15 +1,15 @@
 Package: nordcansurvival
 Type: Package
 Title: NORDCAN Survival Statistics
-Version: 1.0.2
+Version: 1.0.3
 Depends: R (>= 4.0.0)
 Author: Bjarte Aagnes, Huidong Tian, Joonas Miettinen
 Imports: 
     utils,
     data.table,
     dbc,
-    nordcancore (>= 1.0.2),
-    nordcanpreprocessing (>= 1.0.2)
+    nordcancore (>= 1.0.3),
+    nordcanpreprocessing (>= 1.0.3)
 VignetteBuilder: knitr
 Suggests: 
   knitr, 
