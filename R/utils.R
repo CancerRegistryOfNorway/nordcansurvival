@@ -124,9 +124,12 @@ nordcan_survival_settings <- function(stata_exe_path) {
   lifetable <- normalize_path(lifetable)
   survival_output_file_path <- normalize_path(survival_output_file_path)
   pkg_stata_script_dir <- normalize_path(pkg_stata_script_dir)
+  survival_file_analysis_path <- normalize_path(
+    paste0(survival_work_dir, "/survival_file_analysis.dta")
+  )  
   survival_file_analysis_path_5 <- normalize_path(
     paste0(survival_work_dir, "/survival_file_analysis_5.dta")
-  )  
+  )
   survival_file_analysis_path_10 <- normalize_path(
     paste0(survival_work_dir, "/survival_file_analysis_10.dta")
   )
@@ -138,7 +141,9 @@ nordcan_survival_settings <- function(stata_exe_path) {
   mget(c("survival_work_dir", "stata_exe_path", "pkg_path",
          "entity_table_dir", "ado_dir",
          "infile", "lifetable",
-         "survival_file_analysis_path_5", "survival_file_analysis_path_10",
+         "survival_file_analysis_path", 
+         "survival_file_analysis_path_5", 
+         "survival_file_analysis_path_10",
          "survival_file_base_path",
          "survival_output_file_path", "pkg_stata_script_dir"))
 }
