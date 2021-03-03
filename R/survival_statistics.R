@@ -13,8 +13,8 @@
 #' in each strata.
 #' 
 #'
-#' @param cancer_record_dataset_path path to a dataset of cancer records
-#' @param national_population_life_table_path (mandatory, default by NORDCAN system)
+#' @param infile path to a dataset of cancer records
+#' @param lifetable (mandatory, default by NORDCAN system)
 #' @param outfile
 #' 
 #' path where to write result file
@@ -24,17 +24,17 @@
 #' 
 #' @param by 
 #' 
-#' names of columns in file `cancer_record_dataset_path` by which to stratify
+#' names of columns in file `infile` by which to stratify
 #' results
 #' 
 #' @param standstrata
 #' 
-#' names of columns in file `cancer_record_dataset_path` by which to standardise
+#' names of columns in file `infile` by which to standardise
 #' results
 #' 
 #' @param iweight
 #' 
-#' name of weight column in file `cancer_record_dataset_path`
+#' name of weight column in file `infile`
 #' 
 #' @return survival analysis output in csv and dta format.
 #' @examples 
@@ -56,8 +56,8 @@
 #' )
 #'
 #'
-#'survival_statistics(cancer_record_dataset_path  = infile , 
-#'                    national_population_life_table_path = lifetable, 
+#'survival_statistics(infile  = infile , 
+#'                    lifetable = lifetable, 
 #'                    stata_exe_path = "S:/Prog64/STATA/Stata16MP/StataMP-64.exe")
 #'
 #'
@@ -66,16 +66,16 @@
 #'
 survival_statistics <- function(
   stata_exe_path = NULL,
-  cancer_record_dataset_path,
-  national_population_life_table_path,
+  infile,
+  lifetable,
   outfile = "survival_statistics",
   estimand = "netsurvival",
   by = c("entity", "sex", "period_5"),
   standstrata = "agegroup_ICSS_5",
   iweight = "weights_ICSS_5"
 ) {
-  dbc::assert_prod_input_file_exists(cancer_record_dataset_path)
-  dbc::assert_prod_input_file_exists(national_population_life_table_path)
+  dbc::assert_prod_input_file_exists(infile)
+  dbc::assert_prod_input_file_exists(lifetable)
 
   dbc::assert_is_character_nonNA_vector(by)
   dbc::assert_is_character_nonNA_atom(standstrata)
@@ -112,13 +112,13 @@ survival_statistics <- function(
   )
   
 
-  if (!file.exists(cancer_record_dataset_path)) {
-    stop(sprintf("Can not find 'cancer_record_dataset_path': %s !", 
-                 cancer_record_dataset_path))
+  if (!file.exists(infile)) {
+    stop(sprintf("Can not find 'infile': %s !", 
+                 infile))
   }
-  if (!file.exists(national_population_life_table_path)) {
-    stop(sprintf("Can not find 'national_population_life_table_path': %s !", 
-                 national_population_life_table_path))
+  if (!file.exists(lifetable)) {
+    stop(sprintf("Can not find 'lifetable': %s !", 
+                 lifetable))
   }
   
   survival_work_dir <- settings[["survival_work_dir"]]
@@ -129,9 +129,9 @@ survival_statistics <- function(
     survival_work_dir,
     ado_dir, ado_dir, ado_dir, ado_dir,
     settings[["entity_table_dir"]],
-    cancer_record_dataset_path,
+    infile,
     outfile,
-    national_population_life_table_path,
+    lifetable,
     estimand, 
     nordcancore::get_global_nordcan_settings()$participant_name,
     paste0(by, collapse = " "),

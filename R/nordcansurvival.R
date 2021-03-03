@@ -44,21 +44,21 @@ nordcanstat_survival <- function(
   
   # prepare working directory contents -----------------------------------------
   message("* nordcansurvival::nordcanstat_survival: writing life table to ",
-          deparse(settings[["national_population_life_table_path"]]), "...")
+          deparse(settings[["lifetable"]]), "...")
   nplt <- data.table::copy(
     national_population_life_table
   )
   data.table::setnames(nplt, c("year", "age"), c("_year", "_age"))
   data.table::fwrite(
     x = nplt,
-    file = settings[["national_population_life_table_path"]],
+    file = settings[["lifetable"]],
     sep = ";"
   )
   rm(list = "nplt")
   
   message("* nordcansurvival::nordcanstat_survival: writing ",
           "cancer_record_dataset to ",
-          deparse(settings[["cancer_record_dataset_path"]]), "...")
+          deparse(settings[["infile"]]), "...")
   mandatory_subset <- cancer_record_dataset[["excl_surv_total"]] == 0L & 
     cancer_record_dataset[["period_5"]] >= first_year
   subset <- nordcancore::subset_and(
@@ -74,7 +74,7 @@ nordcanstat_survival <- function(
   ]
   data.table::fwrite(
     x = crd,
-    file = settings[["cancer_record_dataset_path"]],
+    file = settings[["infile"]],
     sep = ";"
   )
   rm(list = "crd")
@@ -86,7 +86,7 @@ nordcanstat_survival <- function(
           as.character(Sys.time()))
   t <- proc.time()
   extract_define_survival_data(
-    cancer_record_dataset_path = settings[["cancer_record_dataset_path"]], 
+    infile = settings[["infile"]], 
     stata_exe_path = settings[["stata_exe_path"]]
   )
   message("* nordcansurvival::nordcanstat_survival: ",
@@ -101,8 +101,8 @@ nordcanstat_survival <- function(
   # 5-year periods
   survival_statistics(
     stata_exe_path =  settings[["stata_exe_path"]],
-    cancer_record_dataset_path = settings[["survival_file_analysis_path"]],
-    national_population_life_table_path = settings[["national_population_life_table_path"]],
+    infile = settings[["survival_file_analysis_path_5"]],
+    lifetable = settings[["lifetable"]],
     outfile = "survival_statistics_period_5_dataset",
     estimand = "netsurvival",
     by = c("entity", "sex", "period_5"),
@@ -119,8 +119,8 @@ nordcanstat_survival <- function(
   # 10-year periods
   survival_statistics(
     stata_exe_path =  settings[["stata_exe_path"]],
-    cancer_record_dataset_path = settings[["survival_file_analysis_path"]],
-    national_population_life_table_path = settings[["national_population_life_table_path"]],
+    infile = settings[["survival_file_analysis_path_10"]],
+    lifetable = settings[["lifetable"]],
     outfile = "survival_statistics_period_10_dataset",
     estimand = "netsurvival",
     by = c("entity", "sex", "period_10"),

@@ -17,7 +17,7 @@
 #' the dta files can be read in R using the optional haven package
 #' 
 #' 
-#' @param cancer_record_dataset_path `[character]` (mandatory, no default)
+#' @param infile `[character]` (mandatory, no default)
 #' @param stata_exe_path This is set in the NORDCAN settings by default
 #' 
 #' path to a dataset of cancer records
@@ -25,11 +25,11 @@
 #' @return Two dataset for computing survival analysis. 
 #' 
 extract_define_survival_data <- function(
-  cancer_record_dataset_path, 
+  infile, 
   stata_exe_path = NULL
 ) {
   dbc::assert_prod_input_file_exists(
-    cancer_record_dataset_path
+    infile
   )
   settings <- nordcan_survival_settings(
     stata_exe_path = stata_exe_path
@@ -69,7 +69,7 @@ extract_define_survival_data <- function(
                               settings[["survival_work_dir"]],
                               ado_dir,ado_dir,ado_dir,ado_dir,
                               settings[["entity_table_dir"]],
-                              cancer_record_dataset_path,
+                              infile,
                               survival_file_base,
                               survival_file_analysis,
                               nordcancore::get_global_nordcan_settings()$participant_name
