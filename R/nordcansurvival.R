@@ -86,7 +86,7 @@ nordcanstat_survival <- function(
           as.character(Sys.time()))
   t <- proc.time()
   extract_define_survival_data(
-    infile = settings[["infile"]], 
+    cancer_record_dataset_path = settings[["infile"]], 
     stata_exe_path = settings[["stata_exe_path"]]
   )
   message("* nordcansurvival::nordcanstat_survival: ",
