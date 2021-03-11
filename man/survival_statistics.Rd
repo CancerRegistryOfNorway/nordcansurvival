@@ -6,8 +6,8 @@
 \usage{
 survival_statistics(
   stata_exe_path = NULL,
-  cancer_record_dataset_path,
-  national_population_life_table_path,
+  infile,
+  lifetable,
   outfile = "survival_statistics",
   estimand = "netsurvival",
   by = c("entity", "sex", "period_5"),
@@ -18,21 +18,21 @@ survival_statistics(
 \arguments{
 \item{stata_exe_path}{This is set in the NORDCAN settings by default}
 
-\item{cancer_record_dataset_path}{path to a dataset of cancer records}
+\item{infile}{path to a dataset of cancer records}
 
-\item{national_population_life_table_path}{(mandatory, default by NORDCAN system)}
+\item{lifetable}{(mandatory, default by NORDCAN system)}
 
 \item{outfile}{path where to write result file}
 
 \item{estimand}{defaults to "netsurvival" the only option so far}
 
-\item{by}{names of columns in file `cancer_record_dataset_path` by which to stratify
+\item{by}{names of columns in file `infile` by which to stratify
 results}
 
-\item{standstrata}{names of columns in file `cancer_record_dataset_path` by which to standardise
+\item{standstrata}{names of columns in file `infile` by which to standardise
 results}
 
-\item{iweight}{name of weight column in file `cancer_record_dataset_path`}
+\item{iweight}{name of weight column in file `infile`}
 }
 \value{
 survival analysis output in csv and dta format.
@@ -71,8 +71,8 @@ nordcancore::set_global_nordcan_settings(
 )
 
 
-survival_statistics(cancer_record_dataset_path  = infile , 
-                   national_population_life_table_path = lifetable, 
+survival_statistics(infile  = infile , 
+                   lifetable = lifetable, 
                    stata_exe_path = "S:/Prog64/STATA/Stata16MP/StataMP-64.exe")
 
 

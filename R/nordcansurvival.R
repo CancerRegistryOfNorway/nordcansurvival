@@ -1,5 +1,3 @@
-
-
 #' @title NORDCAN Survival Statistics
 #' @description
 #' Compute survival statistics for NORDCAN. Data is written onto disk and 
@@ -34,20 +32,16 @@ nordcanstat_survival <- function(
     national_population_life_table
   )
   
-  settings <- nordcan_survival_settings(
-    stata_exe_path = stata_exe_path
-  )
+  settings <- nordcan_survival_settings( stata_exe_path = stata_exe_path)
   gs <- nordcancore::get_global_nordcan_settings()
-  first_year <- gs[["stat_survival_follow_up_first_year"]]
+  first_year <- gs[["first_year_survival"]]
   
   subset <- nordcancore::handle_subset_arg(dataset = cancer_record_dataset)
   
   # prepare working directory contents -----------------------------------------
-  message("* nordcansurvival::nordcanstat_survival: writing life table to ",
+  message("*     writing 'life table' to ",
           deparse(settings[["lifetable"]]), "...")
-  nplt <- data.table::copy(
-    national_population_life_table
-  )
+  nplt <- data.table::copy(national_population_life_table)
   data.table::setnames(nplt, c("year", "age"), c("_year", "_age"))
   data.table::fwrite(
     x = nplt,
@@ -56,8 +50,7 @@ nordcanstat_survival <- function(
   )
   rm(list = "nplt")
   
-  message("* nordcansurvival::nordcanstat_survival: writing ",
-          "cancer_record_dataset to ",
+  message("*     writing 'cancer_record_dataset' to ",
           deparse(settings[["infile"]]), "...")
   mandatory_subset <- cancer_record_dataset[["excl_surv_total"]] == 0L & 
     cancer_record_dataset[["period_5"]] >= first_year
@@ -81,21 +74,18 @@ nordcanstat_survival <- function(
   gc()
   
   # define the dataset using a stata script ------------------------------------
-  message("* nordcansurvival::nordcanstat_survival: started running ",
-          "extract_define_survival_data at ", 
+  message("*      started running 'extract_define_survival_data' at ", 
           as.character(Sys.time()))
   t <- proc.time()
   extract_define_survival_data(
     cancer_record_dataset_path = settings[["infile"]], 
     stata_exe_path = settings[["stata_exe_path"]]
   )
-  message("* nordcansurvival::nordcanstat_survival: ",
-          "extract_define_survival_data finished; ", 
-          data.table::timetaken(t))
+  message("*     finished running 'extract_define_survival_data' ; time used: ", 
+          gsub("elapsed.*", "", data.table::timetaken(t)))
   
   # compile survival statistics using stata ------------------------------------
-  message("* nordcansurvival::nordcanstat_survival: started running ",
-          "survival_statistics for 5-year periods at ", 
+  message("*      started running 'survival_statistics' for 5-year periods at ", 
           as.character(Sys.time()))
   t <- proc.time()
   # 5-year periods
@@ -109,11 +99,9 @@ nordcanstat_survival <- function(
     standstrata = "agegroup_ICSS_5",
     iweight = "weights_ICSS_5"
   )
-  message("* nordcansurvival::nordcanstat_survival: ",
-          "survival_statistics finished; ", 
-          data.table::timetaken(t))
-  message("* nordcansurvival::nordcanstat_survival: started running ",
-          "survival_statistics for 10-year periods at ", 
+  message("*     finished running 'survival_statistics' for 5-year periods; time used: ", 
+          gsub("elapsed.*", "", data.table::timetaken(t)))
+  message("*      started running 'survival_statistics' for 10-year periods at ", 
           as.character(Sys.time()))
   t <- proc.time()
   # 10-year periods
@@ -127,17 +115,15 @@ nordcanstat_survival <- function(
     standstrata = "agegroup_ICSS_3",
     iweight = "weights_ICSS_3"
   )
-  message("* nordcansurvival::nordcanstat_survival: ",
-          "survival_statistics finished; ", 
-          data.table::timetaken(t))
+  message("*     finished running 'survival_statistics' for 10-year periods; time used: ", 
+          gsub("elapsed.*", "", data.table::timetaken(t)))
   
   # the stata script has written its output into a new file. read it into R ----
   output_file_path_period_5 <- paste0(
     settings[["survival_work_dir"]], "/",
     "survival_statistics_period_5_dataset.csv"
   ) 
-  message("* nordcansurvival::nordcanstat_survival: reading in results from ",
-          "survival_statistics")
+  message("*     reading in results from 'survival_statistics'")
   if (!file.exists(output_file_path_period_5)) {
     stop(
       "expected file ", deparse(output_file_path_period_5),
@@ -168,8 +154,8 @@ nordcanstat_survival <- function(
   )
   
   # final touches --------------------------------------------------------------
-  message("* nordcansurvival::nordcanstat_survival: finished whole run; ",
-          data.table::timetaken(t_start))
+  message("*     Finished whole 'survival_statistics_period_5/10_dataset'; time used: ",
+          gsub("elapsed.*", "", data.table::timetaken(t_start)))
   ds_nsm <- c("survival_statistics_period_5_dataset", 
               "survival_statistics_period_10_dataset")
   return(mget(ds_nsm))
