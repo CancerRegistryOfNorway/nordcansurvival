@@ -11,7 +11,6 @@ syntax , ///
 qui {	
 	
 clear
-local inc_year_last = 2018 
 find_entity_table_look_up_file, filename(NC_survival_entity_table.dta)		
 local survival_entities `r(survival_entities)'	
 
@@ -22,6 +21,10 @@ clean_up_old_files, ///
 	
 read_incidence_data, incidence_data(`incidence_data')
 define_10_year_periods, five_year_period_variable_name(period_5)
+
+su period_5, meanonly
+local inc_year_last = r(max) + 4
+
 select_validate_vars, inc_year_last(`inc_year_last')
 longform_pat_entitylevel, survival_entities(`survival_entities')
 
