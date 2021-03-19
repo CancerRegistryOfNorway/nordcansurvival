@@ -68,7 +68,7 @@ capture generate country = "`country'"
 compress
 noi save "`survival_file_base'" , replace
 
-nc_define_fup, result(`survival_file_analysis') 
+nc_define_fup, result(`survival_file_analysis') inc_year_last(`inc_year_last')  
 
 noi survival_file_analysis, survival_file_analysis(`survival_file_analysis') 	
 
