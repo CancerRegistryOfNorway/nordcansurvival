@@ -752,22 +752,25 @@ end  // nc_s_data_chk_strata
 capt prog drop define nc_define_fup
 prog define nc_define_fup , nclass
 
-syntax , result(string)  
+syntax , result(string)  inc_year_last(integer 1)
+
+su period_5 , meanonly
+assert `inc_year_last' == r(max)
 
 tempfile cohort
 nc_stset
 save "`cohort'" , replace
 
-drop if end_of_followup <=  d(1.jan2014)    // exit before/on enter (zero fup)
-keep if year(date_of_incidence) > 2003      // not relevant for 10 year fup
+drop if end_of_followup <=  d(1.jan`inc_year_last')    // exit before/on enter (zero fup)
+keep if year(date_of_incidence) > (`inc_year_last' - 11 ) // not relevant for 10 year fup
 
-nc_stset, enter(time d(1.jan2014))
+nc_stset, enter(time d(1.jan`inc_year_last'))
 
-replace period_5 = 2014 
+replace period_5 = `inc_year_last' 
 replace spid = "period" + spid
 append using "`cohort'"
 
-drop if period_5 == 2014 & ! strpos(spid, "period")
+drop if period_5 == `inc_year_last' & ! strpos(spid, "period")
 
 gen fup_def = cond(strpos(spid,"period"), "period", "cohort") 
 
