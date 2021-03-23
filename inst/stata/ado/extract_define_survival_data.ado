@@ -11,7 +11,6 @@ syntax , ///
 qui {	
 	
 clear
-local inc_year_last = 2018 
 find_entity_table_look_up_file, filename(NC_survival_entity_table.dta)		
 local survival_entities `r(survival_entities)'	
 
@@ -22,6 +21,10 @@ clean_up_old_files, ///
 	
 read_incidence_data, incidence_data(`incidence_data')
 define_10_year_periods, five_year_period_variable_name(period_5)
+
+su period_5, meanonly
+local inc_year_last = r(max) + 4
+
 select_validate_vars, inc_year_last(`inc_year_last')
 longform_pat_entitylevel, survival_entities(`survival_entities')
 
@@ -65,7 +68,7 @@ capture generate country = "`country'"
 compress
 noi save "`survival_file_base'" , replace
 
-nc_define_fup, result(`survival_file_analysis') 
+nc_define_fup, result(`survival_file_analysis') inc_year_last(`inc_year_last')  
 
 noi survival_file_analysis, survival_file_analysis(`survival_file_analysis') 	
 
@@ -749,22 +752,26 @@ end  // nc_s_data_chk_strata
 capt prog drop define nc_define_fup
 prog define nc_define_fup , nclass
 
-syntax , result(string)  
+syntax , result(string) inc_year_last(numlist max=1 integer <= 2019)
+
+su period_5 , meanonly
+local year_start_last_5_year_period = r(max) 
+assert `inc_year_last' - 4 == r(max)
 
 tempfile cohort
 nc_stset
 save "`cohort'" , replace
 
-drop if end_of_followup <=  d(1.jan2014)    // exit before/on enter (zero fup)
-keep if year(date_of_incidence) > 2003      // not relevant for 10 year fup
+drop if end_of_followup <=  d(1.jan`year_start_last_5_year_period')    // exit before/on enter (zero fup)
+keep if year(date_of_incidence) > (`year_start_last_5_year_period' - 11 ) // not relevant for 10 year fup
 
-nc_stset, enter(time d(1.jan2014))
+nc_stset, enter(time d(1.jan`year_start_last_5_year_period'))
 
-replace period_5 = 2014 
+replace period_5 = `year_start_last_5_year_period' 
 replace spid = "period" + spid
 append using "`cohort'"
 
-drop if period_5 == 2014 & ! strpos(spid, "period")
+drop if period_5 == `year_start_last_5_year_period' & ! strpos(spid, "period")
 
 gen fup_def = cond(strpos(spid,"period"), "period", "cohort") 
 
@@ -897,11 +904,13 @@ else {
 * saving 10 and 5 year calendar period files
 ********************************************************************************
 
+local survival_file_analysis = subinstr("`survival_file_analysis'",".dta","",1)
+
 local including "min(30) in group, and min(3) in any agestratum within group."
 
 keep if ( agegroup_ICSS_3_NOK == 0 )  & ( agegroup_ICSS_3_tot_NOK == 0 )
 label data "10-year calendar periods. 3-age-groups. `including' "
-noi save "`survival_file_analysis'_10" , replace
+noi save "`survival_file_analysis'_10.dta" , replace
 
 tempvar only_left_truncated
 keep if ( agegroup_ICSS_5_NOK == 0 )  & ( agegroup_ICSS_5_tot_NOK == 0 )
@@ -910,11 +919,11 @@ drop if `only_left_truncated'
 
 drop  agegroup_ICSS_3 weights_ICSS_3 period_10 *NOK
 label data "5-year calendar periods. 5-age-groups. `including'"
-noi save "`survival_file_analysis'_5" , replace
+noi save "`survival_file_analysis'_5.dta" , replace
 
 use "`survival_file_analysis'_10" , clear
 drop if _t0 > 0  // left truncated pseudo observations
-save "`survival_file_analysis'_10" , replace  // last period "complete approach"  
+save "`survival_file_analysis'_10.dta" , replace  // last period "complete approach"  
 
 ********************************************************************************
 
