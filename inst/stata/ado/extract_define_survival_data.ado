@@ -70,7 +70,15 @@ noi save "`survival_file_base'" , replace
 
 nc_define_fup, result(`survival_file_analysis') inc_year_last(`inc_year_last')  
 
-noi survival_file_analysis, survival_file_analysis(`survival_file_analysis') 	
+noi survival_file_analysis, survival_file_analysis(`survival_file_analysis') 
+
+define_p5_s10_breast_prostate, ///
+	survival_file_analysis_5(survival_file_analysis_5.dta) /// 
+	survival_file_analysis_5_10(survival_file_analysis_5_10.dta)
+	
+define_p10_s10_breast_prostate, ///
+	survival_file_analysis_10(survival_file_analysis_10.dta) /// 
+	survival_file_analysis_10_10(survival_file_analysis_10_10.dta)	
 
 } // quietly
 
@@ -103,12 +111,16 @@ syntax , ///
 	back_up_dir_name(string) ///
 	survival_file_base(string) ///
 	survival_file_analysis(string) ///
-	
+
 capture mkdir `back_up_dir_name'
 
-foreach fn in `survival_file_base' `survival_file_analysis' {
+local fls : dir . files "survival_file*"
+
+foreach fn of local fls {
+    
+	mata : st_local("FN", pathbasename(st_local("fn")))
 	
-	local FN = cond(substr("`fn'", -4, .) == ".dta", "`fn'", "`fn'.dta")   
+	local FN = cond(substr("`FN'", -4, .) == ".dta", "`FN'", "`fn'.dta")   
 
 	capture confirm file `FN'
 
@@ -121,7 +133,7 @@ foreach fn in `survival_file_base' `survival_file_analysis' {
 		local m : list posof "`=word("`filedate'", 2)'" in Mons  
 		local y = word("`filedate'", 3)
 		local c = subinstr(word("`filedate'", 4),":", "",.)
-		copy `FN' `back_up_dir_name'/`y'`m'`d'`c'`fn' , replace
+		copy `FN' `back_up_dir_name'/`y'`m'`d'`c'`FN' , replace
 		erase `FN'
 		clear
 	}
@@ -929,6 +941,78 @@ save "`survival_file_analysis'_10.dta" , replace  // last period "complete appro
 
 end // survival_file_analysis 
 } 
+{ /* sub define_p5_s10_breast_prostate */
+
+capture prog drop  define_p5_s10_breast_prostate 
+prog define define_p5_s10_breast_prostate
+
+syntax , ///
+	survival_file_analysis_5(string) ///
+	survival_file_analysis_5_10(string)
+	
+	confirm file `"`survival_file_analysis_5'"'
+
+qui {
+
+use `"`survival_file_analysis_5'"' , clear
+	
+capture drop __*
+keep if inlist(entity, 180, 240) // breast, prostate
+
+tempfile org
+isid spid
+save `org' , replace
+qui su period_5, meanonly   
+local last_period_5 = r(max)
+keep if  period_5 == -10 + `last_period_5'	 // source period
+replace period_5 =   -5  + `last_period_5'   // target period
+streset, enter(time d(1jan`last_period_5'))  // left truncation
+replace spid = spid + "_2005" // ID extra left truncated obs for target period 
+assert strpos(spid,"_2005") if _st == 0
+keep if _st
+append using "`org'" // org data added to extra left truncated obs
+
+noi save `"`survival_file_analysis_5_10'"' , replace
+
+}
+
+end
+
+}
+{ /* sub define_p10_s10_breast_prostate */
+capture prog drop  define_p10_s10_breast_prostate 
+prog define define_p10_s10_breast_prostate
+
+syntax , ///
+	survival_file_analysis_10(string) ///
+	survival_file_analysis_10_10(string)
+	
+	confirm file `"`survival_file_analysis_10'"'
+
+qui {
+
+use `"`survival_file_analysis_10'"' , clear
+	
+capture drop __*
+keep if inlist(entity, 180, 240) // breast, prostate
+
+tempfile org
+isid spid
+save `org' , replace
+qui su period_10, meanonly   
+local last_period_10 = r(max)
+keep if  period_10 == -10 + `last_period_10' // source period
+replace period_10 = `last_period_10'    
+streset, enter(time d(1jan`last_period_10'))  // left truncation
+replace spid = spid + "_left_truncated" // ID extra left truncated obs for target period 
+keep if _st
+append using "`org'" // org data added to extra left truncated obs
+
+noi save `"`survival_file_analysis_10_10'"' , replace
+
+}
+end
+}
 
 exit // anything after this line will be ignored
  

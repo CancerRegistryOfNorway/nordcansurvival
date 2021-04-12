@@ -133,6 +133,12 @@ nordcan_survival_settings <- function(stata_exe_path) {
   survival_file_analysis_path_10 <- normalize_path(
     paste0(survival_work_dir, "/survival_file_analysis_10.dta")
   )
+  survival_file_analysis_path_5_10 <- normalize_path(
+    paste0(survival_work_dir, "/survival_file_analysis_5_10.dta")
+  )
+  survival_file_analysis_path_10_10 <- normalize_path(
+    paste0(survival_work_dir, "/survival_file_analysis_10_10.dta")
+  )
   
   survival_file_base_path <- normalize_path(
     paste0(survival_work_dir, "/survival_file_base.dta")
@@ -144,6 +150,8 @@ nordcan_survival_settings <- function(stata_exe_path) {
          "survival_file_analysis_path", 
          "survival_file_analysis_path_5", 
          "survival_file_analysis_path_10",
+         "survival_file_analysis_path_5_10", 
+         "survival_file_analysis_path_10_10",
          "survival_file_base_path",
          "survival_output_file_path", "pkg_stata_script_dir"))
 }

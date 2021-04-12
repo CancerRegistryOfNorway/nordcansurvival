@@ -84,11 +84,94 @@ nordcanstat_survival <- function(
   message("*     finished running 'extract_define_survival_data' ; time used: ", 
           gsub("elapsed.*", "", data.table::timetaken(t)))
   
+  
   # compile survival statistics using stata ------------------------------------
-  message("*      started running 'survival_statistics' for 5-year periods at ", 
+
+  
+  
+  
+  ################################################################
+  # 10 year survival satistics based on 5-year periods
+  message("*      started running '10 year survival_statistics' based on 5-year periods at ", 
           as.character(Sys.time()))
   t <- proc.time()
-  # 5-year periods
+  survival_statistics(
+    stata_exe_path =  settings[["stata_exe_path"]],
+    infile = settings[["survival_file_analysis_path_5_10"]],
+    outfile = "survival_statistics_period_5_10_dataset",
+    lifetable = settings[["lifetable"]],
+    estimand = "netsurvival",
+    by = c("entity", "sex", "period_5"),
+    standstrata = "agegroup_ICSS_5",
+    iweight = "weights_ICSS_5",
+    breaks = "0(0.08333333)10"
+  )
+  message("*     finished running '10 year survival_statistics' based on 5-year periods; time used: ", 
+          gsub("elapsed.*", "", data.table::timetaken(t)))
+  
+  
+  # 10 year survival satistics based on 10-year periods
+  message("*      started running '10 year survival_statistics' based on 10-year periods at ", 
+          as.character(Sys.time()))
+  t <- proc.time()
+  survival_statistics(
+    stata_exe_path =  settings[["stata_exe_path"]],
+    infile = settings[["survival_file_analysis_path_10_10"]],
+    outfile = "survival_statistics_period_10_10_dataset",
+    lifetable = settings[["lifetable"]],
+    estimand = "netsurvival",
+    by = c("entity", "sex", "period_10"),
+    standstrata = "agegroup_ICSS_3",
+    iweight = "weights_ICSS_3",
+    breaks = "0(0.08333333)10"
+  )
+  message("*     finished running '10 year survival_statistics' based on 10-year periods; time used: ", 
+          gsub("elapsed.*", "", data.table::timetaken(t)))
+  
+  
+  # the stata script has written its output into a new file. read it into R ----
+  output_file_path_period_5_10 <- paste0(
+    settings[["survival_work_dir"]], "/",
+    "survival_statistics_period_5_10_dataset.csv"
+  ) 
+  message("*     reading in results from 'survival_statistics'")
+  if (!file.exists(output_file_path_period_5_10)) {
+    stop(
+      "expected file ", deparse(output_file_path_period_5_10),
+      " to be created by survival function, but it did not exist; see log ",
+      "files in ", deparse(settings[["survival_work_dir"]]), " for more ",
+      "information"
+    )
+  }
+  survival_statistics_period_5_10_dataset <- data.table::fread(
+    file = output_file_path_period_5_10,
+    encoding = "UTF-8"
+  )
+  
+  
+  output_file_path_period_10_10 <- paste0(
+    settings[["survival_work_dir"]], "/", 
+    "survival_statistics_period_10_10_dataset.csv"
+  )
+  if (!file.exists(output_file_path_period_10_10)) {
+    stop(
+      "expected file ", deparse(output_file_path_period_10_10),
+      " to be created by survival function, but it did not exist; see log ",
+      "files in ", deparse(settings[["survival_work_dir"]]), " for more ",
+      "information"
+    )
+  }
+  survival_statistics_period_10_10_dataset <- data.table::fread(
+    file = output_file_path_period_10_10,
+    encoding = "UTF-8"
+  )
+  
+  
+  #########################################################################
+  # 5 year survival statistics based on 5-year periods
+  message("*      started running '5 year survival_statistics' based on 5-year periods at ",
+          as.character(Sys.time()))
+  t <- proc.time()
   survival_statistics(
     stata_exe_path =  settings[["stata_exe_path"]],
     infile = settings[["survival_file_analysis_path_5"]],
@@ -99,12 +182,13 @@ nordcanstat_survival <- function(
     standstrata = "agegroup_ICSS_5",
     iweight = "weights_ICSS_5"
   )
-  message("*     finished running 'survival_statistics' for 5-year periods; time used: ", 
+  message("*     finished running '5 year survival_statistics' based on 5-year periods; time used: ",
           gsub("elapsed.*", "", data.table::timetaken(t)))
-  message("*      started running 'survival_statistics' for 10-year periods at ", 
+  
+  # 5 year survival statistics based 10-year periods
+  message("*      started running '5 year survival_statistics' based on 10-year periods at ",
           as.character(Sys.time()))
   t <- proc.time()
-  # 10-year periods
   survival_statistics(
     stata_exe_path =  settings[["stata_exe_path"]],
     infile = settings[["survival_file_analysis_path_10"]],
@@ -115,14 +199,15 @@ nordcanstat_survival <- function(
     standstrata = "agegroup_ICSS_3",
     iweight = "weights_ICSS_3"
   )
-  message("*     finished running 'survival_statistics' for 10-year periods; time used: ", 
+  message("*     finished running '5 year survival_statistics' based on 10-year periods; time used: ",
           gsub("elapsed.*", "", data.table::timetaken(t)))
+  
   
   # the stata script has written its output into a new file. read it into R ----
   output_file_path_period_5 <- paste0(
     settings[["survival_work_dir"]], "/",
     "survival_statistics_period_5_dataset.csv"
-  ) 
+  )
   message("*     reading in results from 'survival_statistics'")
   if (!file.exists(output_file_path_period_5)) {
     stop(
@@ -137,7 +222,7 @@ nordcanstat_survival <- function(
     encoding = "UTF-8"
   )
   output_file_path_period_10 <- paste0(
-    settings[["survival_work_dir"]], "/", 
+    settings[["survival_work_dir"]], "/",
     "survival_statistics_period_10_dataset.csv"
   )
   if (!file.exists(output_file_path_period_10)) {
@@ -153,11 +238,16 @@ nordcanstat_survival <- function(
     encoding = "UTF-8"
   )
   
+  
+  
   # final touches --------------------------------------------------------------
   message("*     Finished whole 'survival_statistics_period_5/10_dataset'; time used: ",
           gsub("elapsed.*", "", data.table::timetaken(t_start)))
+  
   ds_nsm <- c("survival_statistics_period_5_dataset", 
-              "survival_statistics_period_10_dataset")
+              "survival_statistics_period_10_dataset", 
+              "survival_statistics_period_5_10_dataset", 
+              "survival_statistics_period_10_10_dataset" )
   return(mget(ds_nsm))
 }
 

@@ -75,7 +75,8 @@ survival_statistics <- function(
   estimand = "netsurvival",
   by = c("entity", "sex", "period_5"),
   standstrata = "agegroup_ICSS_5",
-  iweight = "weights_ICSS_5"
+  iweight = "weights_ICSS_5", 
+  breaks = NULL
 ) {
   dbc::assert_prod_input_file_exists(infile)
   dbc::assert_prod_input_file_exists(lifetable)
@@ -104,8 +105,9 @@ survival_statistics <- function(
     	country(\"%s\")       ///
     	by(%s)                 ///
       standstrata(%s)     ///  
-      iweight(%s)  
-
+      iweight(%s)         ///
+      breaks(0(0.08333333)5) 
+      
     stata_code_tail, function(survival_statistics)  // cleaning up etc
 
     "
@@ -141,6 +143,10 @@ survival_statistics <- function(
     standstrata,
     iweight
   )
+  
+  if(!is.null(breaks)) {
+    dofile_contents <- gsub("0(0.08333333)5", breaks, dofile_contents, fixed = TRUE)  
+  }
   
   ## save the  do file
   dofile_name <- paste0(survival_work_dir, "/survival_statistics.do")
