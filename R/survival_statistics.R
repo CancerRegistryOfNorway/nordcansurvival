@@ -106,7 +106,7 @@ survival_statistics <- function(
     	by(%s)                 ///
       standstrata(%s)     ///  
       iweight(%s)         ///
-      breaks(0(0.08333333)5) 
+      breaks(0(`=1/12')6) 
       
     stata_code_tail, function(survival_statistics)  // cleaning up etc
 
@@ -145,7 +145,7 @@ survival_statistics <- function(
   )
   
   if(!is.null(breaks)) {
-    dofile_contents <- gsub("0(0.08333333)5", breaks, dofile_contents, fixed = TRUE)  
+    dofile_contents <- gsub("0(`=1/12')6", breaks, dofile_contents, fixed = TRUE)  
   }
   
   ## save the  do file

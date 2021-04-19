@@ -14,10 +14,7 @@ clear
 find_entity_table_look_up_file, filename(NC_survival_entity_table.dta)		
 local survival_entities `r(survival_entities)'	
 
-clean_up_old_files, ///
-	back_up_dir_name(oldfiles) ///
-	survival_file_base(`survival_file_base') ///
-	survival_file_analysis(`survival_file_analysis') 
+clean_up_old_files // delete survival_file*
 	
 read_incidence_data, incidence_data(`incidence_data')
 define_10_year_periods, five_year_period_variable_name(period_5)
@@ -107,35 +104,15 @@ capt prog drop clean_up_old_files
 
 prog define clean_up_old_files, rclass
 
-syntax , ///
-	back_up_dir_name(string) ///
-	survival_file_base(string) ///
-	survival_file_analysis(string) ///
-
-capture mkdir `back_up_dir_name'
-
-local fls : dir . files "survival_file*"
+local fls1 : dir . files "survival_file*" 
 
 foreach fn of local fls {
     
-	mata : st_local("FN", pathbasename(st_local("fn")))
-	
-	local FN = cond(substr("`FN'", -4, .) == ".dta", "`FN'", "`fn'.dta")   
-
-	capture confirm file `FN'
+	capture confirm file "`fn'"
 
 	if ( _rc == 0 ) {
 		
-		use in 1 using `FN', clear
-		local filedate `c(filedate)' 
-		local Mons `c(Mons)'
-		local d = word("`filedate'", 1)
-		local m : list posof "`=word("`filedate'", 2)'" in Mons  
-		local y = word("`filedate'", 3)
-		local c = subinstr(word("`filedate'", 4),":", "",.)
-		copy `FN' `back_up_dir_name'/`y'`m'`d'`c'`FN' , replace
-		erase `FN'
-		clear
+		erase "`fn'"
 	}
 }
 	

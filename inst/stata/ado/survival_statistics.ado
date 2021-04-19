@@ -16,6 +16,9 @@ syntax ,			   ///
 findfile NC_survival_entity_table.dta
 local survival_entities `r(fn)'
 confirm file "`survival_entities'" 
+
+clean_up_old_files // deletes
+
 ********************************************************************************
 
 mata : st_local("infilename", pathbasename("`infile'"))
@@ -273,9 +276,21 @@ prog define nc_rs_format_export , nclass
 syntax , outfile(string) ///
 	survival_entities(string) 
 
-use if inlist(end, 1 , 5, 10 ) using "`outfile'" , clear
+qui su end , meanonly
 
-********************************************************************************
+if ( r(max) < 7 ) {
+		
+	keep if inlist(end,1,5)
+	assert inlist(end,1,5)
+}
+
+else {
+		
+	keep if inlist(end,10)
+	assert end == 10
+}
+	
+****************************************************************************
 * merge NC S data with NC S definitions
 ********************************************************************************
 local surv_entities_vars entity entity_description_en  entity_display_order
@@ -302,9 +317,82 @@ local outfile = subinstr("`outfile'", ".dta", ".csv", 1 )
 export delimited using "`outfile'" , /// std encoding UTF-8
 	delimiter(";") ///
 	replace
+	
+	
+capture {
+	
+	confirm file survival_statistics_period_5_dataset.csv
+	confirm file survival_statistics_period_10_dataset.csv
+	confirm file survival_statistics_period_5_10_dataset.csv	
+	confirm file survival_statistics_period_10_10_dataset.csv
+}
 
+if ( _rc == 0 ) {
+	
+	foreach p of numlist 5 10 {
+
+	tempfile `p'
+	
+	import delimited ///
+		using "survival_statistics_period_`p'_10_dataset.csv" , ///
+			delim(";") encoding(UTF-8) clear
+			
+	keep if inlist(end,10)	
+	save "``p''"	
+	
+	import delimited ///
+		using "survival_statistics_period_`p'_dataset.csv" , ///
+			delim(";") encoding(UTF-8) clear
+	
+	keep if inlist(end,1,5)	
+	append using "``p''"
+
+	sort entity_display_order period* sex end
+	
+	replace metadata = "" if end == 10
+		
+	export delimited ///
+		using "survival_statistics_period_`p'_dataset.csv" , ///
+			delim(";")  nolabel replace 
+}
+
+capture {
+	
+	confirm file survival_statistics_period_5_dataset.csv
+	confirm file survival_statistics_period_10_dataset.csv	
+}	
+
+if (_rc == 0 ) { 
+
+	capture erase "survival_statistics_period_5_10_dataset.csv"	
+	capture erase "survival_statistics_period_10_10_dataset.csv"
+}	
+
+}
+	
 end  // nc_rs_format_export
 
+}
+
+{ /* sub clean_up_old_files */
+
+capt prog drop clean_up_old_files
+
+prog define clean_up_old_files, rclass
+
+local fls1 : dir . files "survival_statistics_period*" 
+
+foreach fn of local fls {
+    
+	capture confirm file "`fn'"
+
+	if ( _rc == 0 ) {
+		
+		erase "`fn'"
+	}
+}
+	
+end	// clean_up_old_files	
 }
 
 exit
