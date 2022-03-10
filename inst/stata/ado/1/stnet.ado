@@ -565,6 +565,9 @@ program define stnet
 			}
 			local atsh "if `toshow'"
 		}
+		
+		/*
+		
 		if "`listyearly'" != "" {
 			tempvar toshow
 			g byte `toshow' = int(end) 
@@ -572,10 +575,13 @@ program define stnet
 			qui replace `toshow' = 0 if int(end)==0
 			local listye "if `toshow'"
 		}
+		
+		*/
+		
 		if "`list'"==""{
 			if "`brenner'"!="" 	di as res _n "Adjusted survival estimates weighting individual observations as proposed by Brenner."
 			if "`indweight'"!="" 	di as res _n "Adjusted survival estimates weighting individual observations with weights in `indweight'."
-			if "`ederer2'" == "" di as result _newline "Cumulative net survival according to Pohar Perme, Stare and Estève method."
+			if "`ederer2'" == "" di as result _newline "Cumulative net survival according to Pohar Perme, Stare and EstÃ¨ve method."
 			else		     di as result _newline "Cumulative relative survival according to Ederer II method."
 			if "`at'" == "" {
 				if `ng' > 1 {
@@ -609,7 +615,7 @@ program define stnet
 			local flist : list list - st_end
 			if "`brenner'"!="" 	di as res _n "Adjusted survival estimates weighting individual observations as proposed by Brenner."
 			if "`indweight'"!="" 	di as res _n "Adjusted survival estimates weighting individual observations with weights in `indweight'."
-			di as result _newline "Cumulative net survival according to Pohar Perme, Stare and Estève method."
+			di as result _newline "Cumulative net survival according to Pohar Perme, Stare and EstÃ¨ve method."
 			if "`ederer2'" != "" di as result "and cumulative relative survival according to Ederer II method."
 			if "`at'" == "" {
 				if `ng' > 1 	`byst' list start end `flist' `listye', table noobs
