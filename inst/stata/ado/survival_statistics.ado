@@ -247,8 +247,9 @@ capture stnet using "`lifetable'" `iweight_arg'   ,
 	mergeby(`mergeby')                   
 	survprob(`prob')                     
 	saving(`outfile', replace)          
-	notab  
-	
+	notab
+	cilog
+
 "'
 ))
 ;
