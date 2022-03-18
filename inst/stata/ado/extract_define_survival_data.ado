@@ -741,7 +741,7 @@ end  // nc_s_data_chk_strata
 capt prog drop define nc_define_fup
 prog define nc_define_fup , nclass
 
-syntax , result(string) inc_year_last(numlist max=1 integer <= 2019)
+syntax , result(string) inc_year_last(numlist max=1 integer <= 2020)
 
 su period_5 , meanonly
 local year_start_last_5_year_period = r(max) 
