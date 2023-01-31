@@ -1,21 +1,21 @@
+*! version 1.0.0  2023-31-01
 capt prog drop extract_define_survival_data
 prog define extract_define_survival_data , nclass
 
-syntax , ///
-	incidence_data(string) ///
-	survival_file_base(string)   /// 
-	survival_file_analysis(string)   /// 
-	[survival_entities(string)] ///
+syntax ,                              ///
+	incidence_data(string)            ///
+	survival_file_base(string)        /// 
+	survival_file_analysis(string)    /// 
+	[survival_entities(string)]       ///
 	[country(string)] 
 
-qui {	
+quietly {
 	
 clear
 find_entity_table_look_up_file, filename(NC_survival_entity_table.dta)		
 local survival_entities `r(survival_entities)'	
 
-clean_up_old_files // delete survival_file*
-	
+clean_up_old_files 
 read_incidence_data, incidence_data(`incidence_data')
 define_10_year_periods, five_year_period_variable_name(period_5)
 
@@ -25,49 +25,47 @@ local inc_year_last = r(max) + 4
 select_validate_vars, inc_year_last(`inc_year_last')
 longform_pat_entitylevel, survival_entities(`survival_entities')
 
-define_agegr_w_ICCS // 5 ICCS agegroups and 3: (1-2), 3, (4-5) 
+define_agegr_w_ICCS // 5-level ICCS agegroups, and 3-level (1-2), 3, (4-5) 
 
 local noobs 3 // lower limit for n in age stratum
 local tot  30 // lower limit for N in group to be analysed
 
-mark_small_n_strata , ///
-	idvar(spid) /// 
-	groups(entity sex period_5) ///  
-	agegr(agegroup_ICSS_5) ///
-	nobs(`noobs') ///
+mark_small_n_strata ,            ///
+	idvar(spid)                  /// 
+	groups(entity sex period_5)  ///  
+	agegr(agegroup_ICSS_5)       ///
+	nobs(`noobs')                ///
 	tot(`tot')
 	
-mark_small_n_strata , ///
-	idvar(spid) /// 
+mark_small_n_strata ,            ///
+	idvar(spid)                  /// 
 	groups(entity sex period_10) ///  
-	agegr(agegroup_ICSS_3) ///
-	nobs(`noobs') ///
+	agegr(agegroup_ICSS_3)       ///
+	nobs(`noobs')                ///
 	tot(`tot')
 	
 assert agegroup_ICSS_5_NOK if  agegroup_ICSS_3_NOK
 assert !agegroup_ICSS_3_NOK if !agegroup_ICSS_5_NOK	
-	
-********************************************************************************
-* define fup 
-********************************************************************************
-generate byte dead_fup = ( vit_sta == 2 & /// 
-	year(end_of_followup) <= `inc_year_last')
-generate end_fup = min( end_of_followup, d(31.dec.`inc_year_last') )
+
+gen byte dead_fup = ( vit_sta == 2 & year(end_of_followup) <= `inc_year_last')
+gen end_fup = min( end_of_followup, d(31.dec.`inc_year_last') )
 drop if end_fup == date_of_incidence  
-********************************************************************************
-order agegroup_ICSS_5 weights_ICSS_5 agegroup_ICSS_5_NOK , last 
-order agegroup_ICSS_3 weights_ICSS_3 agegroup_ICSS_3_NOK , last   
-order agegroup_ICSS_5_tot_NOK agegroup_ICSS_3_tot_NOK , last
-order year , before(period_5)
 
 capture generate country = "`country'"
-
+ 
+order agegroup_ICSS_5 weights_ICSS_5 agegroup_ICSS_5_NOK, last 
+order agegroup_ICSS_3 weights_ICSS_3 agegroup_ICSS_3_NOK, last   
+order agegroup_ICSS_5_tot_NOK agegroup_ICSS_3_tot_NOK, last
+order year, before(period_5)
 compress
 noi save "`survival_file_base'" , replace
 
-nc_define_fup, result(`survival_file_analysis') inc_year_last(`inc_year_last')  
+nc_define_fup, ///
+	result(`survival_file_analysis') ///
+	inc_year_last(`inc_year_last')  
 
-noi survival_file_analysis, survival_file_analysis(`survival_file_analysis') 
+noi survival_file_analysis, ///
+	survival_file_analysis(`survival_file_analysis') 
 
 define_p5_s10_breast_prostate, ///
 	survival_file_analysis_5(survival_file_analysis_5.dta) /// 
@@ -79,7 +77,7 @@ define_p10_s10_breast_prostate, ///
 
 } // quietly
 
-end // extract_define_survival_data_p10
+end // extract_define_survival_data
 
 ********************************************************************************
 * define sub programs
@@ -770,7 +768,7 @@ isid pat entity fup_def
 isid spid 
 assert _st
  
-save `result' , replace
+save "`result'" , replace
 
 end //  nc_define_fup
 }
@@ -938,7 +936,7 @@ keep if inlist(entity, 180, 240) // breast, prostate
 
 tempfile org
 isid spid
-save `org' , replace
+save "`org'" , replace
 qui su period_5, meanonly   
 local last_period_5 = r(max)
 keep if  period_5 == -10 + `last_period_5'	 // source period
@@ -975,7 +973,7 @@ keep if inlist(entity, 180, 240) // breast, prostate
 
 tempfile org
 isid spid
-save `org' , replace
+save "`org'" , replace
 qui su period_10, meanonly   
 local last_period_10 = r(max)
 keep if  period_10 == -10 + `last_period_10' // source period
