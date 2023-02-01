@@ -65,7 +65,7 @@
 #'
 #'
 #' @export
-#' @return
+#'
 #'
 survival_statistics <- function(
   stata_exe_path = NULL,

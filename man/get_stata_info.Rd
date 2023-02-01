@@ -11,8 +11,6 @@ get_stata_info(stata_exe_path)
 }
 \value{
 Return Stata information to terminal and save as a log file.
-
-
 }
 \description{
 Retrieve Stata version, session, and other information for debugging.

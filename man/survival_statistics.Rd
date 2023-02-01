@@ -12,7 +12,8 @@ survival_statistics(
   estimand = "netsurvival",
   by = c("entity", "sex", "period_5"),
   standstrata = "agegroup_ICSS_5",
-  iweight = "weights_ICSS_5"
+  iweight = "weights_ICSS_5",
+  breaks = NULL
 )
 }
 \arguments{
@@ -36,8 +37,6 @@ results}
 }
 \value{
 survival analysis output in csv and dta format.
-
-
 }
 \description{
 Provides non-parametric estimate of marginal relative survival, which under assumptions can be 
@@ -64,10 +63,13 @@ lifetable <- paste0(system.file(package = "nordcansurvival"),
 
 nordcancore::set_global_nordcan_settings(
   work_dir = getwd(),
-  participant_name = "Finland",
-  stat_cancer_record_count_first_year = 1953L,
-  stat_cancer_death_count_first_year = 1953L,
-  regional_data_first_year = 1953L
+  participant_name = "Norway",
+  first_year_incidence = 1953L,
+  first_year_mortality = 1953L,
+  first_year_region = 1953L,
+  last_year_incidence = 2018L,
+  last_year_mortality = 2018L,
+  last_year_survival = 2018L
 )
 
 
