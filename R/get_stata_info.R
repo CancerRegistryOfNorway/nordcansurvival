@@ -9,10 +9,10 @@
 #' 
 #' @param stata_exe_path Path to Stata executable. In NORDAN taken from the settings by default.
 #' 
-#' @return Return Stata information to terminal and save as a log file. 
-#' 
+#'  
 #' @export
-#'
+#' 
+#' @return Return Stata information to terminal and save as a log file. 
 #' 
 get_stata_info <- function(stata_exe_path) {
   ## make template for Stata commad file

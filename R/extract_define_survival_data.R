@@ -21,8 +21,8 @@
 #' @param stata_exe_path This is set in the NORDCAN settings by default
 #' 
 #' path to a dataset of cancer records
-#' @export
 #' @return Two dataset for computing survival analysis. 
+#' @export
 #' 
 extract_define_survival_data <- function(
   cancer_record_dataset_path, 

@@ -60,10 +60,9 @@ raise_internal_error <- function(...) {
 
 
 nordcan_survival_settings <- function(stata_exe_path) {
-  require(dbc)
   dbc::assert_prod_input_is_one_of(
     stata_exe_path,
-    funs = c("report_is_NULL", "report_file_exists")
+    funs = list(dbc::report_is_NULL,dbc::report_file_exists)
   )
   
   survival_work_dir <- nordcancore::get_global_nordcan_settings()[["survival_work_dir"]]

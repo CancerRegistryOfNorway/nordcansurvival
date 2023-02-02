@@ -37,22 +37,6 @@ results}
 }
 \value{
 survival analysis output in csv and dta format.
-}
-\description{
-Provides non-parametric estimate of marginal relative survival, which under assumptions can be 
-interpreted as marginal net survival. survival_statistics() is calling the Stata stnet program, 
-using the Pohar Perme estimator with Brenner weighting to estimate age-standardized net survival.
-
-The beta version provides 5-year survival only.
-
-For some entities estimation is not possible because there are no data in some age stratum used
-for weighting. 
-
-In the beta version there is no lower limit to data, execpt there must be at least one observation 
-in each strata.
-}
-\examples{
-
 
 library(nordcansurvival)
 infile <-  paste0(system.file(package = "nordcansurvival"), 
@@ -76,6 +60,17 @@ nordcancore::set_global_nordcan_settings(
 survival_statistics(infile  = infile , 
                    lifetable = lifetable, 
                    stata_exe_path = "S:/Prog64/STATA/Stata16MP/StataMP-64.exe")
+}
+\description{
+Provides non-parametric estimate of marginal relative survival, which under assumptions can be 
+interpreted as marginal net survival. survival_statistics() is calling the Stata stnet program, 
+using the Pohar Perme estimator with Brenner weighting to estimate age-standardized net survival.
 
+The beta version provides 5-year survival only.
 
+For some entities estimation is not possible because there are no data in some age stratum used
+for weighting. 
+
+In the beta version there is no lower limit to data, execpt there must be at least one observation 
+in each strata.
 }

@@ -37,8 +37,8 @@
 #' name of weight column in file `infile`
 #' 
 #' @return survival analysis output in csv and dta format.
-#' @examples 
 #' 
+#' @return
 #' 
 #' library(nordcansurvival)
 #' infile <-  paste0(system.file(package = "nordcansurvival"), 
