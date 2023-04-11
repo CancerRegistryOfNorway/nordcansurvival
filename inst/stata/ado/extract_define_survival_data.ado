@@ -1,22 +1,60 @@
-*! version 1.0.0  2023-31-01
+*! version 1.0.6  2023-04-01   
+{ /* define extract_define_survival_data */
+
 capt prog drop extract_define_survival_data
 prog define extract_define_survival_data , nclass
 
 syntax ,                              ///
 	incidence_data(string)            ///
-	survival_file_base(string)        /// 
-	survival_file_analysis(string)    /// 
+	[survival_file_base(string)]      /// 
+	[survival_file_analysis(string)]  /// 
 	[survival_entities(string)]       ///
-	[country(string)] 
-
-quietly {
+	[country(string)]                 ///
+	[trace]                           ///
+	[10PCsampleBreastProstateCRCfrom_2001]
 	
+set type double
+
+* ad-hoc
+
+local survival_file_base survival_file_base.dta 
+local survival_file_analysis survival_file_analysis.dta 	
+	
+local quietly quietly 	
+
+if ( "`trace'" == "trace" ) {
+	
+	trace_start trace_extract_define_survival_data.log
+	
+	set trace on 
+	capt assert c(trace) == "on" 
+	
+	if ( _rc == 9 ) {
+		
+		di as error "trace not active"
+		prog dir
+		exit 
+	}
+}
+
+********************************************************************************
+		
+`quietly' {
+	
+timer on 1	
+		
 clear
 find_entity_table_look_up_file, filename(NC_survival_entity_table.dta)		
 local survival_entities `r(survival_entities)'	
 
 clean_up_old_files 
 read_incidence_data, incidence_data(`incidence_data')
+
+if ( "`10PCsampleBreastProstateCRCfrom_2001'" != "" ) {   // SAMPLE
+	                                                      // SAMPLE
+	keep if period_5 >= 2001                              // SAMPLE
+}                                                         // SAMPLE
+
 define_10_year_periods, five_year_period_variable_name(period_5)
 
 su period_5, meanonly
@@ -26,6 +64,12 @@ select_validate_vars, inc_year_last(`inc_year_last')
 longform_pat_entitylevel, survival_entities(`survival_entities')
 
 define_agegr_w_ICCS // 5-level ICCS agegroups, and 3-level (1-2), 3, (4-5) 
+
+if ( "`10PCsampleBreastProstateCRCfrom_2001'" != "" ) {  // SAMPLE
+	                                                     // SAMPLE 
+	keep if inlist(entity, 180, 240, 520)                // SAMPLE
+	sample 10 , by(entity period_5 agegroup_ICSS_5)      // SAMPLE
+}                                                        // SAMPLE                                                        
 
 local noobs 3 // lower limit for n in age stratum
 local tot  30 // lower limit for N in group to be analysed
@@ -58,13 +102,14 @@ order agegroup_ICSS_3 weights_ICSS_3 agegroup_ICSS_3_NOK, last
 order agegroup_ICSS_5_tot_NOK agegroup_ICSS_3_tot_NOK, last
 order year, before(period_5)
 compress
-noi save "`survival_file_base'" , replace
+
+save "`survival_file_base'" , replace
 
 nc_define_fup, ///
 	result(`survival_file_analysis') ///
 	inc_year_last(`inc_year_last')  
 
-noi survival_file_analysis, ///
+survival_file_analysis, ///
 	survival_file_analysis(`survival_file_analysis') 
 
 define_p5_s10_breast_prostate, ///
@@ -75,12 +120,57 @@ define_p10_s10_breast_prostate, ///
 	survival_file_analysis_10(survival_file_analysis_10.dta) /// 
 	survival_file_analysis_10_10(survival_file_analysis_10_10.dta)	
 
-} // quietly
 
-end // extract_define_survival_data
+qui { // ad-hoc new naming
+ 
+	confirm file survival_file_analysis_5.dta
+	
+	shell move survival_file_analysis_5.dta ///
+	           survival_file_analysis_survivaltime_05_period_05.dta
+	
+	confirm file survival_file_analysis_10.dta
+	
+	shell move survival_file_analysis_10.dta ///
+	           survival_file_analysis_survivaltime_05_period_10.dta
+	
+	confirm file survival_file_analysis_5_10.dta
+	
+	shell move survival_file_analysis_5_10.dta ///
+	           survival_file_analysis_survivaltime_10_period_05.dta
+	
+	confirm file survival_file_analysis_10_10.dta 
+	
+	shell move survival_file_analysis_10_10.dta  ///
+	survival_file_analysis_survivaltime_10_period_10.dta
+}
 
 ********************************************************************************
-* define sub programs
+
+if ( "`trace'" == "trace" ) {
+
+	set trace off
+	log close trace
+	assert c(trace) == "off"
+}
+
+********************************************************************************
+timer off 1
+	
+} // quietly
+
+stata_code_tail, ///
+	function(extract_define_survival_data) ///
+	timer(1)
+
+noi di _n "The following files are ready for analysis:"
+noi dir survival_file_analysis_survivaltime_??_period_??.dta
+noi di _n
+
+end // extract_define_survival_data 
+}
+
+********************************************************************************
+{ // * define sub programs 
 ********************************************************************************
 { /* sub find_entity_table_look_up_file */
 
@@ -415,6 +505,18 @@ prog define define_agegr_w_ICCS, nclass
 * ICSS 1 Elderly ( ~87.3% of cancers )
 ********************************************************************************
 
+/*
+	https://gitlab.kreftregisteret.no/nordcan/nordcansurvival/-/issues/2
+
+	1. ICSS 1 Elderly. Most sites and summary groups: 
+
+	A. 0–49  (12), 
+	A. 50–59 (17),  [29] A 0-59
+	B. 60–69 (27),  [27] B 60–69  
+	C. 70–79 (29),  [44] C 70-89
+	C. 80–89 (15)
+*/
+
 scalar weights_ICSS_1 = " .12 .17 .27 .29 .15 "
 assert `=subinstr(trim(itrim(scalar(weights_ICSS_1)))," ","+",.)' == 1
 
@@ -440,28 +542,73 @@ replace weights_ICSS_1B = .44 if inrange( int(age) , 80, 89 )
 ********************************************************************************
 * ICSS 2 Little age dependency ( ~10.2% of cancers)
 ********************************************************************************
+	
+* 2.1 Bone *********************************************************************
 
-scalar weights_ICSS_2 = " .36 .19 .22 .16 .07 "
-assert `=subinstr(trim(itrim(scalar(weights_ICSS_2)))," ","+",.)' == 1
+/*
+	i. Bone: 
 
-scalar weights_ICSS_2B = " `= .36 + .19' .22 `= .16 + .07' "
-assert `=subinstr(trim(itrim(scalar(weights_ICSS_2B)))," ","+",.)' == 1
+	A. 0–29   (7), 
+	A. 30–39 (13), 
+	B. 40–49 (16), [36] A 0-49
+	C. 50–69 (41), [41] B 50-69 
+	C. 70–89 (23)  [23] C 70-89 
+*/  
 
-tokenize `= scalar(weights_ICSS_2) '
+scalar weights_ICSS_21 = " .07 .13 .16 .41 .23 "
+assert  `=subinstr(trim(itrim(scalar(weights_ICSS_21)))," ","+",.)' == 1
 
-generate double weights_ICSS_2 = . 
-replace weights_ICSS_2 = `1' if inrange( int(age) , 0 , 49 ) 
-replace weights_ICSS_2 = `2' if inrange( int(age) , 50, 59 )
-replace weights_ICSS_2 = `3' if inrange( int(age) , 60, 69 )
-replace weights_ICSS_2 = `4' if inrange( int(age) , 70, 79 )
-replace weights_ICSS_2 = `5' if inrange( int(age) , 80, 89 )
+scalar weights_ICSS_21B = " `= .07 + .13 + .16' .41 .23 "
+assert  `=subinstr(trim(itrim(scalar(weights_ICSS_21B)))," ","+",.)' == 1
+tokenize `= scalar(weights_ICSS_21) '
 
-generate double weights_ICSS_2B = . 
-replace weights_ICSS_2B = .55 if inrange( int(age) , 0 , 49 ) 
-replace weights_ICSS_2B = .55 if inrange( int(age) , 50, 59 )
-replace weights_ICSS_2B = .22 if inrange( int(age) , 60, 69 )
-replace weights_ICSS_2B = .23 if inrange( int(age) , 70, 79 )
-replace weights_ICSS_2B = .23 if inrange( int(age) , 80, 89 )
+generate double weights_ICSS_21 = . 
+replace weights_ICSS_21 = `1' if inrange(int(age), 0 , 29 ) 
+replace weights_ICSS_21 = `2' if inrange(int(age), 30, 39 )
+replace weights_ICSS_21 = `3' if inrange(int(age), 40, 49 )
+replace weights_ICSS_21 = `4' if inrange(int(age), 50, 69 )
+replace weights_ICSS_21 = `5' if inrange(int(age), 70, 89 ) 
+
+generate double weights_ICSS_21B = . 
+replace weights_ICSS_21B = .36  if inrange(int(age), 0 , 29 ) 
+replace weights_ICSS_21B = .36  if inrange(int(age), 30, 39 )
+replace weights_ICSS_21B = .36  if inrange(int(age), 40, 49 )
+replace weights_ICSS_21B = .41 if inrange(int(age), 50, 69 )
+replace weights_ICSS_21B = .23 if inrange(int(age), 70, 89 ) 
+
+* 2.2 Melanoma, cervix, brain, thyroid, soft tissue ****************************
+
+/*
+	ii. Melanoma, cervix, brain, thyroid, soft tissue: 
+
+	A. 0–49 (36),   [36] A 0–49  
+	A. 50–59 (19), 
+	B. 60–69 (22),  [41] B 50-69
+	C. 70–79 (16),  [23] C 70-89
+	C. 80–89 (7)
+*/
+
+scalar weights_ICSS_22 = " .36 .19 .22 .16 .07 "
+assert `=subinstr(trim(itrim(scalar(weights_ICSS_22)))," ","+",.)' == 1
+
+scalar weights_ICSS_22B = " .36 `= .19 + .22' `= .16 + .07' "
+assert `=subinstr(trim(itrim(scalar(weights_ICSS_22B)))," ","+",.)' == 1
+
+tokenize `= scalar(weights_ICSS_22) '
+
+generate double weights_ICSS_22 = . 
+replace weights_ICSS_22 = `1' if inrange( int(age) , 0 , 49 ) 
+replace weights_ICSS_22 = `2' if inrange( int(age) , 50, 59 )
+replace weights_ICSS_22 = `3' if inrange( int(age) , 60, 69 )
+replace weights_ICSS_22 = `4' if inrange( int(age) , 70, 79 )
+replace weights_ICSS_22 = `5' if inrange( int(age) , 80, 89 )
+
+generate double weights_ICSS_22B = . 
+replace weights_ICSS_22B = .36 if inrange( int(age) , 0 , 49 ) 
+replace weights_ICSS_22B = .41 if inrange( int(age) , 50, 59 )
+replace weights_ICSS_22B = .41 if inrange( int(age) , 60, 69 )
+replace weights_ICSS_22B = .23 if inrange( int(age) , 70, 79 )
+replace weights_ICSS_22B = .23 if inrange( int(age) , 80, 89 )
 
 ********************************************************************************
 * ICSS 3 Young adults ( ~2.5% of cancers ) 
@@ -469,14 +616,23 @@ replace weights_ICSS_2B = .23 if inrange( int(age) , 80, 89 )
 
 * 3.1 Testis, Hodgkin lymphoma
 * 3.2 Acute lymphatic leukaemia
-* 3.3 Bone
 
-* 3.1 Testis, Hodgkin lymphoma *************************************************	
+* 3.1 Testis, Hodgkin lymphoma
+
+/*
+	i. Testis, Hodgkin lymphoma: 
+
+	A. 0–29  (31),  [31] A 0–29   
+	A. 30–39 (21), 
+	B. 40–49 (13),  [34] B 30-49
+	C. 50–69 (20),   
+	C. 70–89 (15)   [35] C 50-89
+*/
 
 scalar weights_ICSS_31 = " .31 .21 .13 .20 .15 "
 assert `=subinstr(trim(itrim(scalar(weights_ICSS_31)))," ","+",.)' == 1
 
-scalar weights_ICSS_31B = " `= .31 + .21' .13 `= .20 + .15' "
+scalar weights_ICSS_31B = " .31 `= .21 + .13' `= .20 + .15' "
 assert `=subinstr(trim(itrim(scalar(weights_ICSS_31B)))," ","+",.)' == 1
 
 tokenize `= scalar(weights_ICSS_31) '
@@ -489,18 +645,28 @@ replace weights_ICSS_31 = `4' if inrange(int(age), 50, 69 )
 replace weights_ICSS_31 = `5' if inrange(int(age), 70, 89 )
 
 generate double weights_ICSS_31B = . 
-replace weights_ICSS_31B = .52 if inrange(int(age), 0 , 29 ) 
-replace weights_ICSS_31B = .52 if inrange(int(age), 30, 39 )
-replace weights_ICSS_31B = .13 if inrange(int(age), 40, 49 )
+replace weights_ICSS_31B = .31 if inrange(int(age), 0 , 29 ) 
+replace weights_ICSS_31B = .34 if inrange(int(age), 30, 39 )
+replace weights_ICSS_31B = .34 if inrange(int(age), 40, 49 )
 replace weights_ICSS_31B = .35 if inrange(int(age), 50, 69 )
 replace weights_ICSS_31B = .35 if inrange(int(age), 70, 89 )
 
 * 3.2 Acute lymphatic leukaemia ************************************************
 
+/*
+	ii. Acute leukemia: 
+
+	A. 0–29 (31),   [31] A 0-29 
+	A. 30–49 (34),  [34] B 30-49
+	B. 50–69 (20), 
+	C. 70–79 (10), 
+	C. 80–89 (5)    [35] C 50-89
+*/
+
 scalar weights_ICSS_32 = " .31 .34 .20 .10 .05 "
 assert `=subinstr(trim(itrim(scalar(weights_ICSS_32)))," ","+",.)' == 1
 
-scalar weights_ICSS_32B = " `= .31 + .34' .20 `= .10 + .05' "
+scalar weights_ICSS_32B = " .31 .34 `= .20 + .10 + .05' "
 assert `=subinstr(trim(itrim(scalar(weights_ICSS_32B)))," ","+",.)' == 1
 
 tokenize `= scalar(weights_ICSS_32) '
@@ -513,95 +679,98 @@ replace weights_ICSS_32 = `4' if inrange(int(age), 70, 79 )
 replace weights_ICSS_32 = `5' if inrange(int(age), 80, 89 ) 
 
 generate double weights_ICSS_32B = . 
-replace weights_ICSS_32B = .65 if inrange(int(age), 0 , 29 ) 
-replace weights_ICSS_32B = .65 if inrange(int(age), 30, 49 )
-replace weights_ICSS_32B = .20 if inrange(int(age), 50, 69 )
-replace weights_ICSS_32B = .15 if inrange(int(age), 70, 79 ) 
-replace weights_ICSS_32B = .15 if inrange(int(age), 80, 89 ) 
-
-* 3.3 Bone **********************************************************************
-
-scalar weights_ICSS_33 = " .07 .13 .16 .41 .23 "
-assert  `=subinstr(trim(itrim(scalar(weights_ICSS_33)))," ","+",.)' == 1
-scalar weights_ICSS_33B = " `= .07 + .13' .16 `= .41 + .23' "
-
-assert  `=subinstr(trim(itrim(scalar(weights_ICSS_33B)))," ","+",.)' == 1
-tokenize `= scalar(weights_ICSS_33) '
-
-generate double weights_ICSS_33 = . 
-replace weights_ICSS_33 = `1' if inrange(int(age), 0 , 29 ) 
-replace weights_ICSS_33 = `2' if inrange(int(age), 30, 39 )
-replace weights_ICSS_33 = `3' if inrange(int(age), 40, 49 )
-replace weights_ICSS_33 = `4' if inrange(int(age), 50, 69 )
-replace weights_ICSS_33 = `5' if inrange(int(age), 70, 89 ) 
-
-generate double weights_ICSS_33B = . 
-replace weights_ICSS_33B = .2  if inrange(int(age), 0 , 29 ) 
-replace weights_ICSS_33B = .2  if inrange(int(age), 30, 39 )
-replace weights_ICSS_33B = .16 if inrange(int(age), 40, 49 )
-replace weights_ICSS_33B = .64 if inrange(int(age), 50, 69 )
-replace weights_ICSS_33B = .64 if inrange(int(age), 70, 89 ) 
+replace weights_ICSS_32B = .31 if inrange(int(age), 0 , 29 ) 
+replace weights_ICSS_32B = .34 if inrange(int(age), 30, 49 )
+replace weights_ICSS_32B = .35 if inrange(int(age), 50, 69 )
+replace weights_ICSS_32B = .35 if inrange(int(age), 70, 79 ) 
+replace weights_ICSS_32B = .35 if inrange(int(age), 80, 89 ) 
 
 ********************************************************************************
 
-assert !mi(weights_ICSS_1)  // Elderly ( ~87.3% of cancers )
-assert !mi(weights_ICSS_2)  // Little age dependency ( ~10.2% of cancers)
-assert !mi(weights_ICSS_31) // Testis, Hodgkin lymphoma
-assert !mi(weights_ICSS_32) // Acute lymphatic leukaemia
-assert !mi(weights_ICSS_33) // Bone
+assert !mi(weights_ICSS_1)  // 1 Elderly  
+assert !mi(weights_ICSS_21) // 2 Bone
+assert !mi(weights_ICSS_22) // 2 Melanoma, cervix, brain, thyroid, soft tissue 
+assert !mi(weights_ICSS_31) // 3 Testis, Hodgkin lymphoma
+assert !mi(weights_ICSS_32) // 3 Acute lymphatic leukaemia
 
 local offset = 3 * uchar(8199) 
 
-lab var weights_ICSS_1	"{ `= scalar(weights_ICSS_1) ' } Elderly ( ~87.3% of cancers )"
-lab var weights_ICSS_2  "{ `= scalar(weights_ICSS_2) ' } Little age dependency ( ~10.2% of cancers)" 
-lab var weights_ICSS_31 "{ `= scalar(weights_ICSS_31)' } Testis, Hodgkin lymphoma"
-lab var weights_ICSS_32 "{ `= scalar(weights_ICSS_32)' } Acute lymphatic leukaemia" 
-lab var weights_ICSS_33 "{ `= scalar(weights_ICSS_33)' } Bone "
+lab var weights_ICSS_1   "{ `= scalar(weights_ICSS_1) ' } 1. Elderly ( ~87.3% of cancers )"
+lab var weights_ICSS_21  "{ `= scalar(weights_ICSS_21) ' } 2.1 Bone" 
+lab var weights_ICSS_22  "{ `= scalar(weights_ICSS_22) ' } 2.2 Melanoma, cervix, brain, thyroid, soft tissue" 
+lab var weights_ICSS_31  "{ `= scalar(weights_ICSS_31)' } 3.1 Testis, Hodgkin lymphoma"
+lab var weights_ICSS_32  "{ `= scalar(weights_ICSS_32)' } 3.2 Acute lymphatic leukaemia" 
 
 assert !mi(weights_ICSS_1B)  // Elderly ( ~87.3% of cancers )
-assert !mi(weights_ICSS_2B)  // Little age dependency ( ~10.2% of cancers)
+assert !mi(weights_ICSS_21B) // Bone  
+assert !mi(weights_ICSS_22B) // Melanoma, cervix, brain, thyroid, soft tissue 
 assert !mi(weights_ICSS_31B) // Testis, Hodgkin lymphoma
 assert !mi(weights_ICSS_32B) // Acute lymphatic leukaemia
-assert !mi(weights_ICSS_33B) // Bone
 
-lab var weights_ICSS_1B	 "{ `offset' `= scalar(weights_ICSS_1B) ' `offset' } Elderly ( ~87.3% of cancers )"
-lab var weights_ICSS_2B  "{ `offset' `= scalar(weights_ICSS_2B) ' `offset' } Little age dependency ( ~10.2% of cancers)" 
-lab var weights_ICSS_31B "{ `offset' `= scalar(weights_ICSS_31B)' `offset' } Testis, Hodgkin lymphoma"
-lab var weights_ICSS_32B "{ `offset' `= scalar(weights_ICSS_32B)' `offset' } Acute lymphatic leukaemia" 
-lab var weights_ICSS_33B "{ `offset' `= scalar(weights_ICSS_33B)' `offset' } Bone "
+lab var weights_ICSS_1B	 "{ `offset' `= scalar(weights_ICSS_1B) ' `offset' } 1. Elderly ( ~87.3% of cancers )"
+lab var weights_ICSS_21B "{ `offset' `= scalar(weights_ICSS_21B) ' `offset' } 2.1 Bone" 
+lab var weights_ICSS_22B "{ `offset' `= scalar(weights_ICSS_22B) ' `offset' } 2.2 Melanoma, cervix, brain, thyroid, soft tissue"
+lab var weights_ICSS_31B "{ `offset' `= scalar(weights_ICSS_31B)' `offset' } 3.1 Testis, Hodgkin lymphoma"
+lab var weights_ICSS_32B "{ `offset' `= scalar(weights_ICSS_32B)' `offset' } 3.2 Acute lymphatic leukaemia" 
 
 ********************************************************************************
 * make one variable "weights_ICSS" applying weights above
 ********************************************************************************
 
-generate double weights_ICSS = . 
-generate double weights_ICSSB = .
+generate double weights_ICSS = .  // 5 levels
+generate double weights_ICSSB = . // 3 levels
 
-replace weights_ICSS = weights_ICSS_33 if inlist(entity,340)      // Bone
-replace weights_ICSS = weights_ICSS_32 if inlist(entity,401)      // AML
-replace weights_ICSS = weights_ICSS_31 if inlist(entity,250,370)  // Testis, H-L
+gen weights = ""
 
-replace weights_ICSSB = weights_ICSS_33B if inlist(entity,340)      // Bone
-replace weights_ICSSB = weights_ICSS_32B if inlist(entity,401)      // AML
-replace weights_ICSSB = weights_ICSS_31B if inlist(entity,250,370)  // Testis, H-L
+* 3.1 Testis, Hodgkin lymphoma
+replace weights_ICSS = weights_ICSS_31 if inlist(entity,250,370)  
+replace weights_ICSSB = weights_ICSS_31B if inlist(entity,250,370)
+replace weights_ICSS_31B = . if ! inlist(entity,250,370) 
 
-* Cervix uteri, Melanoma of skin, Brain and CNS , Thyroid, Soft tissues
-	
-replace weights_ICSS = weights_ICSS_2 if inlist(entity, 190, 290, 320, 330, 350)
-replace weights_ICSSB = weights_ICSS_2B if inlist(entity, 190, 290, 320, 330, 350)	
-* other than above
+replace weights = "NC ICSS 3.1" if inlist(entity,250,370) 
+   
+* 3.2 Acute leukemia
+replace weights_ICSS = weights_ICSS_32 if inlist(entity,401)  
+replace weights_ICSSB = weights_ICSS_32B if inlist(entity,401)       
+replace weights_ICSS_32B = . if ! inlist(entity,401)
+
+replace weights = "NC ICSS 3.2" if inlist(entity,401)
+
+* 2.1 Bone
+replace weights_ICSS = weights_ICSS_21 if inlist(entity,340)      
+replace weights_ICSSB = weights_ICSS_21B if inlist(entity,340)       
+replace weights_ICSS_21B = . if ! inlist(entity,340)   
+
+replace weights = "NC ICSS 2.1" if inlist(entity,340)
+
+* 2.2 Melanoma, cervix, brain, thyroid, soft tissue	
+replace weights_ICSS = weights_ICSS_22 if inlist(entity, 190, 290, 320, 330, 350)
+replace weights_ICSSB = weights_ICSS_22B if inlist(entity, 190, 290, 320, 330, 350)	
+replace weights_ICSS_22B = . if ! inlist(entity, 190, 290, 320, 330, 350)
+
+replace weights = "NC ICSS 2.2" if inlist(entity, 190, 290, 320, 330, 350)
+
+* OTHER: 1. ICSS 1 Elderly. Most sites and summary groups: 
 
 replace weights_ICSS = weights_ICSS_1 if mi(weights_ICSS)
 replace weights_ICSSB = weights_ICSS_1B if mi(weights_ICSSB)
+replace weights_ICSS_1B = . if ! ///
+	(	inlist(entity,250,370) ///
+		| inlist(entity, 190, 290, 320, 330, 350) ///
+		| inlist(entity, 190, 290, 320, 330, 350) ///
+	)
 
+replace weights = "NC ICSS 1" if mi(weights)
+lab var weights "NC ICSS weights"
+	
 rename weights_ICSS weights_ICSS_5
 rename weights_ICSSB weights_ICSS_3 
 
 assert !mi(weights_ICSS_5)
 assert !mi(weights_ICSS_3)
 
-lab var weights_ICSS_5  "assigned (5) weights from weight sets 1, 2, 31, 32, 33"
-lab var weights_ICSS_3 "assigned (3) weights from weight sets 1, 2, 31, 32, 33"
+lab var weights_ICSS_5 "assigned (5) weights from weight sets 1, 21, 22, 31, 32"
+lab var weights_ICSS_3 "assigned (3) weights from weight sets 1B, 21B, 22B, 31B, 32B"
 	
 ********************************************************************************
 * define agegroups for weighting:  
@@ -621,9 +790,9 @@ replace agegroup_ICSS_A = "`5'" if inrange(int(age), 70, 89 )
 
 rename agegroup_ICSS_A agegroup_ICSS_A_str
 encode agegroup_ICSS_A_str , gen(agegroup_ICSS_A) 
-lab var agegroup_ICSS_A "{`= scalar(agegroup_ICSS_A) '}"
+lab var agegroup_ICSS_A "{`= scalar(agegroup_ICSS_A) '} Testis, Bone, Soft tissues"
 
-* B:  AML ----------------------------------------------------------------------
+* B:  Acute leukemia  ---------------------------------------------------------- 
 
 scalar agegroup_ICSS_B = " 00-29 30-49 50-69 70-79 80-89 " 
 tokenize `= scalar(agegroup_ICSS_B) '
@@ -637,7 +806,7 @@ replace agegroup_ICSS_B = "`5'" if inrange(int(age), 80, 89 )
 
 rename agegroup_ICSS_B agegroup_ICSS_B_str
 encode agegroup_ICSS_B_str , gen(agegroup_ICSS_B) 
-lab var agegroup_ICSS_B "{`= scalar(agegroup_ICSS_B) '}"
+lab var agegroup_ICSS_B "{`= scalar(agegroup_ICSS_B) '} Acute leukemia"
 
 * agegr C:  other than A and B -------------------------------------------------
 
@@ -653,7 +822,7 @@ replace agegroup_ICSS_C =  "`5'"  if inrange( int(age) , 80, 89 )
 
 rename agegroup_ICSS_C agegroup_ICSS_C_str
 encode agegroup_ICSS_C_str , gen(agegroup_ICSS_C)
-lab var agegroup_ICSS_C "{`= scalar(agegroup_ICSS_C) '}"
+lab var agegroup_ICSS_C "{`= scalar(agegroup_ICSS_C) '} most entities"
 
 drop agegroup_ICSS_A_str agegroup_ICSS_B_str agegroup_ICSS_C_str 
 
@@ -661,28 +830,196 @@ assert scalar(agegroup_ICSS_A) != scalar(agegroup_ICSS_B)
 assert scalar(agegroup_ICSS_B) != scalar(agegroup_ICSS_C)   
 
 ********************************************************************************
-* make one variable "weights_ICSS" applying weights above
+* make one common variable agegroup_ICSS
 ********************************************************************************
-generate int agegroup_ICSS = .
+
+generate byte agegroup_ICSS = .
 
 * A:  TESTIS (250) ,  BONE (340)  , HODGKIN LYMPHOMA (370)  -------------------- 
+replace agegroup_ICSS_A = . if  ! inlist(entity, 250, 340, 370 )
 replace agegroup_ICSS = agegroup_ICSS_A if inlist(entity, 250, 340, 370 )
 
-* B:  401	Acute Lymphatic Leukaemias ----------------------------------------- 
+* B:  Acute Lymphatic Leukaemias (401) -----------------------------------------  
+replace agegroup_ICSS_B = . if  ! inlist(entity, 401 )  
 replace agegroup_ICSS = agegroup_ICSS_B if inlist(entity, 401 )  
 
-* agegr C:  other than A and B -------------------------------------------------
+* C:  other than A and B -------------------------------------------------------  
+replace agegroup_ICSS_C = . if !mi(agegroup_ICSS_A) | !mi(agegroup_ICSS_B)   
 replace agegroup_ICSS = agegroup_ICSS_C if mi(agegroup_ICSS)
+
+gen int agegroup = .
+replace agegroup = 1 if ! mi(agegroup_ICSS_C) // "ICSS 1.and 2.ii"  
+replace agegroup = 2 if ! mi(agegroup_ICSS_A) // "ICSS 2.i and 3.i"    
+replace agegroup = 3 if ! mi(agegroup_ICSS_B) // "ICSS 3.2"  
+
+lab def agegroup ///
+	1 "NC ICSS 1, 2.2"  ///
+	2 "NC ICSS 2.1, 3.1" ///
+	3 "NC ICSS 3.2" 
+
+lab val agegroup agegroup
+lab var agegroup "3 five-level age-groups defined"	
+	
+assert inlist(agegroup_ICSS, 1, 2, 3, 4, 5)
+assert inlist(agegroup, 1, 2, 3)
 
 ********************************************************************************
 local A5 agegroup_ICSS_5
 rename agegroup_ICSS `A5'
 lab var `A5' "assigned agegr (5) from agegr sets A, B, C"
-
 assert inlist(`A5', 1, 2, 3, 4, 5)
-gen int agegroup_ICSS_3 = cond(`A5' < 3, 1, cond(`A5' > 3, 3, 2) )
-lab var agegroup_ICSS_3 "assigned agegr (3) from agegr sets A, B, C"
-assert inlist(agegroup_ICSS_3 , 1, 2, 3)
+
+generate str5 agegroup_ICSS_5_str = ""
+
+local agegroup_ICSS  = "agegroup_ICSS_A agegroup_ICSS_B agegroup_ICSS_C"
+
+foreach v of varlist `agegroup_ICSS' { 
+	
+	tempvar str 
+	decode `v' , generate(`str') 
+	replace  agegroup_ICSS_5_str = `str' if !mi(`v')
+}
+
+noi table agegroup_ICSS_5_str agegroup , nototal
+
+
+********************************************************************************
+* defining 3-level age-groups
+********************************************************************************
+
+* 1. ICSS 1 Elderly. Most sites and summary groups: 
+
+local A5 agegroup_ICSS_5
+
+gen byte agegroup_ICSS_3_1 = cond(`A5' < 3, 1, cond(`A5' > 3, 3, 2) ) ///
+	if ! ( /// 
+		inlist(entity, 340) /// 
+	    | inlist(entity, 190, 290, 320, 330, 350) /// 
+		| inlist(entity, 250, 370) ///  
+		| inlist(entity, 401) /// 
+	) 
+
+#delim;
+	
+label define agegroup_ICSS_3_1
+
+	1 "00-59"
+	2 "60-69"
+	3 "70-89"	 
+;
+#delim cr	
+
+lab val agegroup_ICSS_3_1 agegroup_ICSS_3_1 
+
+table agegroup_ICSS_C agegroup_ICSS_3_1 , nototal  
+	
+* 2. ICSS 2.i  Little age dependency 
+
+	* 340 Bone
+	
+gen byte agegroup_ICSS_3_2_1 = cond(`A5' < 4, 1, cond(`A5' > 4, 3, 2) ) ///
+	if inlist(entity, 340) 
+
+#delim;
+	
+label define agegroup_ICSS_3_2_1
+
+	1   "00-49"
+	2   "50-69"
+	3   "70-89"
+;
+#delim cr	
+
+lab val agegroup_ICSS_3_2_1 agegroup_ICSS_3_2_1
+
+table agegroup_ICSS_A agegroup_ICSS_3_2_1, nototal 	
+	
+* 2. ICSS 2.ii  Little age dependency: 
+
+	* 190 Cervix uteri
+	* 290 Skin, non-melanoma
+	* 320 Brain and CNS excluding endocrine tumors
+	* 320 Thyroid
+	* 350 Soft tissues
+
+gen byte agegroup_ICSS_3_2_2 = cond(`A5' == 1, 1, cond(`A5' > 3, 3, 2) ) ///
+	if inlist(entity, 190, 290, 320, 330, 350) 
+
+#delim;
+	
+label define agegroup_ICSS_3_2_2
+
+	1   "00-49"
+	2   "50-69"
+	3   "70-89"
+;
+#delim cr	
+
+lab val agegroup_ICSS_3_2_2 agegroup_ICSS_3_2_2
+
+table agegroup_ICSS_C agegroup_ICSS_3_2_2, nototal	// ?? agegroup_ICSS_C  
+	
+* 3. ICSS 3.i Young adults. 
+	
+	* 250 Testis
+	* 370 Hodgkin lymphomas
+
+gen byte agegroup_ICSS_3_3_1 = cond(`A5' == 1, 1, cond(`A5' > 3, 3, 2) ) ///
+	if inlist(entity, 250, 370) 
+	
+#delim;
+	
+label define agegroup_ICSS_3_3_1
+
+	1   "00-29"
+	2   "30-49"
+	3   "50-89"
+;
+#delim cr	
+
+lab val agegroup_ICSS_3_3_1 agegroup_ICSS_3_3_1
+
+table agegroup_ICSS_A agegroup_ICSS_3_3_1, nototal 	
+
+* 3. ICSS 3.ii Young adults.
+
+	* 401 Acute lymphatic leukaemias
+
+gen byte agegroup_ICSS_3_3_2  = cond(`A5' == 1, 1, cond(`A5' > 2, 3, 2) ) ///
+	if inlist(entity, 401)  
+		
+#delim;
+	
+label define agegroup_ICSS_3_3_2
+
+	1   "00-29"
+	2   "30-49"
+	3   "50-89"
+;
+#delim cr	
+
+lab val agegroup_ICSS_3_3_2 agegroup_ICSS_3_3_2
+
+table agegroup_ICSS_B agegroup_ICSS_3_3_2, nototal 	
+
+gen byte agegroup_ICSS_3 = .
+gen str5 agegroup_ICSS_3_str = ""
+	
+foreach v of varlist agegroup_ICSS_3*1  agegroup_ICSS_3*2 {
+	
+		replace agegroup_ICSS_3 = `v' if !mi(`v')
+		
+		tempvar str 
+		decode `v' , generate(`str') 
+		replace  agegroup_ICSS_3_str = `str' if !mi(`v')
+		drop `str'
+}
+
+lab var agegroup_ICSS_3_str "assigned agegr (3) from agegr sets"
+lab var agegroup_ICSS_3     "assigned agegr (3) from agegr sets"
+
+assert inlist(agegroup_ICSS_3, 1, 2, 3) 
+ 
 ********************************************************************************
 end	// define_agegr_w_ICCS
 
@@ -699,7 +1036,6 @@ syntax ,                 ///
 
 quietly {
 	
-
 * verify : weights sum to on within life-table strata (by)  
  
 tempvar chkbrw agegr
@@ -725,7 +1061,6 @@ by `by' : replace no_obs_in_strata = ///
 						if ( weight_err & _n > 1 ) 
 						
 by `by' : replace no_obs_in_strata = "" if ( weight_err & _n < _N )   
-
 
 } // quietly
 
@@ -799,20 +1134,16 @@ scalar stsetcmd =
 
 trim(itrim(ustrregexra(
 
-`"
-
-stset `time' ,
-
+`"  stset `time' ,
 	fail(`fail')       /* failure indicator                         */
 	origin(`origin')   /* define when time == 0                     */
 	enter(`enter')     /* define time of entry (> 0 left cencoring) */
 	scale(`scale')     /* scale (date days since epoche) to years   */
 	id(`id')           /* subject pseudo ID variable                */
-
-"' , "\/\*.+?\*\/", "" /* strip of comments */ )))
+"' , 
+"\/\*.+?\*\/", "" /* strip of comments */ )))
 ;
 #delim cr 
-
 
 mata: nc_stset_cmd = st_strscalar("stsetcmd")
 
@@ -868,6 +1199,8 @@ local vars
 	age
 	period_5  agegroup_ICSS_5 weights_ICSS_5 agegroup_ICSS_5_NOK agegroup_ICSS_5_tot_NOK
 	period_10 agegroup_ICSS_3 weights_ICSS_3 agegroup_ICSS_3_NOK agegroup_ICSS_3_tot_NOK
+	agegroup_ICSS_5_str
+	agegroup_ICSS_3_str
 	dead_fup
 	end_of_followup
 	end_fup    
@@ -908,7 +1241,7 @@ drop  agegroup_ICSS_3 weights_ICSS_3 period_10 *NOK
 label data "5-year calendar periods. 5-age-groups. `including'"
 noi save "`survival_file_analysis'_5.dta" , replace
 
-use "`survival_file_analysis'_10" , clear
+use "`survival_file_analysis'_10.dta" , clear
 drop if _t0 > 0  // left truncated pseudo observations
 save "`survival_file_analysis'_10.dta" , replace  // last period "complete approach"  
 
@@ -988,6 +1321,27 @@ noi save `"`survival_file_analysis_10_10'"' , replace
 }
 end
 }
+{ /* sub trace_start */
 
+capt prog drop trace_start
+prog define trace_start
+args fn	
+noi di "hello from trace_start"
+assert "`fn'" != ""	
+log using "`fn'", text replace name(trace)
+
+set trace on
+set tracedepth  4 
+set tracesep on 
+set traceexpand on
+set traceindent on
+set tracenumber on
+
+c_local quietly
+
+about 
+
+end // trace_start
+}
+}
 exit // anything after this line will be ignored
- 
