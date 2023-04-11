@@ -186,6 +186,18 @@ rmdir "`tmp'"
 
 generate country = "`country'"
 
+if ( "`standstrata'" == "" ) { // age-specific
+	
+	bysort `by' (end) : gen n0 = n[1] 
+	order n0 , before(n)
+	sort `by' end
+}
+
+else {
+	
+	sort `by' 
+}
+
 save "`outfile'" , replace
 
 describe using "`outfile'"
@@ -292,7 +304,7 @@ end // nc_stnet
 
 }
 
-{ // nc_rs_format_export VERY PRELIMINARY without formating etc
+{ // nc_rs_format_export without formating
 
 prog define nc_rs_format_export , nclass
 
@@ -301,16 +313,14 @@ syntax , outfile(string) ///
 
 qui su end , meanonly
 
-if ( r(max) < 7 ) {
+if ( r(max) < 6 ) {
 		
 	keep if inlist(end,1,5)
-	assert inlist(end,1,5)
 }
 
 else {
 		
 	keep if inlist(end,10)
-	assert end == 10
 }
 	
 ****************************************************************************
@@ -321,9 +331,15 @@ merge m:1 entity using "`survival_entities'", ///
 keepusing(`surv_entities_vars') /// 
 keep(master match)  
 capt drop _merge
-capt drop start n d dstarpoh ypoh dpoh dpohsq secns
+capt drop start d dstarpoh ypoh dpoh dpohsq secns
 order entity* entity_description_en entity_display_order
-sort entity_display_order period* sex
+
+capture ds agegroup*
+capt confirm variable end
+if ( _rc==0 ) local end end 
+	
+sort entity_display_order period* sex `r(varlist)' `end'
+
 describe, short varlist
 generate metadata = "sortorder[`r(sortlist)']" in 1
 
@@ -341,6 +357,7 @@ export delimited using "`outfile'" , /// std encoding UTF-8
 	delimiter(";") ///
 	replace
 	
+/*
 	
 capture {
 	
@@ -392,6 +409,8 @@ if (_rc == 0 ) {
 }	
 
 }
+
+*/
 	
 end  // nc_rs_format_export
 
