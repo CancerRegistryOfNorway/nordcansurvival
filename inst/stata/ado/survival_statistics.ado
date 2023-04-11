@@ -1,3 +1,7 @@
+*! version 1.0.6  2023-04-01  
+
+{ // main survival_statistics  
+
 prog define survival_statistics , rclass
 
 syntax ,			   ///
@@ -12,6 +16,12 @@ syntax ,			   ///
 	[iweight(string)] /// to be varname
 	[standstrata(string)] /// to be varname
 
+qui {
+	
+set type double
+
+clear
+	
 ********************************************************************************
 findfile NC_survival_entity_table.dta
 local survival_entities `r(fn)'
@@ -62,6 +72,13 @@ if ( strlower(substr("`lifetable'",-4,.)) != ".dta" ) {
 
 ********************************************************************************
 
+capture timer clear 1
+timer on 1 
+
+noi display as result _n  ///
+"survival_statistics: estimation started " c(current_time) _n ///  
+"survival_statistics: data: `infile'"  
+
 if ("`estimand'" == "netsurvival") {
 
 	net_survival ,			   ///
@@ -76,7 +93,15 @@ if ("`estimand'" == "netsurvival") {
 		standstrata(`standstrata')
 }
 
+timer off 1
+
+noi stata_code_tail , function(survival_statistics) timer(1)
+noi confirm file "`outfile'"  
+
+} // qui
+
 end
+} // end main
 
 ********************************************************************************
 { // * define sub net_survial
@@ -121,7 +146,7 @@ qui foreach entity of local entities {
 		
 		keep if !mi(period_10)
 	}
-	
+		
 	noi di "stnet running for entity: `entity'"
 	
 	nc_stnet ,                              ///
@@ -184,10 +209,10 @@ syntax , ///
 	[brenner]  /// OPTIONAL Brenner weighting
 	by(string) /// to be varlist when used
 	[breaks(string)] ///
-	iweight(string) ///
-	standstrata(string) 
+	[iweight(string)] /// age-std
+	[standstrata(string)]  // age-std
 	
-assert  "`iweight'" != ""
+* assert  "`iweight'" != ""
 	
 **********************************************************************
 
@@ -200,34 +225,31 @@ if "`survprob'" == ""     local survprob = "prob"
 
 **********************************************************************
 
-local iweight_arg = " [ iweight = `iweight' ] "
+if ( "`iweight'" != "" ) {
+
+	local iweight_arg = " [ iweight = `iweight' ] "
 	local standstrata_arg = " standstrata(`standstrata')"
+	
+}
 	
 confirm file `"`lifetable'"'
 local lifetable = subinstr(`"`lifetable'"',".dta","",1)
-
-if "`brenner'" == "" {
-	
-	local brenner = "brenner"
-}
-
-if "`iweight'" == "" {
-	
-	local iweight = "weights_ICSS"
-	local iweight_arg = " [ iweight = `iweight' ] "
-}
-
-if "`standstrata'" == "" {
-	
-	local standstrata = "agegroup_ICSS"
-	local standstrata_arg = " standstrata(`standstrata')"
-}
 
 if ( "`brenner'" == "brenner" ) {
 	
 	confirm variable `iweight'
 	confirm variable `standstrata'
 }
+
+if ("`standstrata_arg'" == "" ) {
+	
+	local saving saving(`outfile', replace)		
+}
+
+else {
+	
+	local saving savstand(`outfile', replace)	
+}   
 
 #delim ;
 
@@ -246,7 +268,7 @@ capture stnet using "`lifetable'" `iweight_arg'   ,
 	diagdate(`diagdate')                
 	mergeby(`mergeby')                   
 	survprob(`prob')                     
-	saving(`outfile', replace)          
+	`saving'          
 	notab
 	cilog
 
