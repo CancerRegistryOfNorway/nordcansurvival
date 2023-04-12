@@ -8,7 +8,9 @@ nordcanstat_survival(
   cancer_record_dataset,
   national_population_life_table,
   stata_exe_path = NULL,
-  subset = NULL
+  subset = NULL,
+  surv_ds_nms,
+  survival_test_sample
 )
 }
 \arguments{

@@ -130,17 +130,17 @@ nordcan_survival_settings <- function(stata_exe_path) {
   survival_file_analysis_path <- normalize_path(
     paste0(survival_work_dir, "/survival_file_analysis.dta")
   )  
-  survival_file_analysis_path_5 <- normalize_path(
-    paste0(survival_work_dir, "/survival_file_analysis_5.dta")
+  survival_file_analysis_survivaltime_05_period_05 <- normalize_path(
+    paste0(survival_work_dir, "/survival_file_analysis_survivaltime_05_period_05.dta")
   )
-  survival_file_analysis_path_10 <- normalize_path(
-    paste0(survival_work_dir, "/survival_file_analysis_10.dta")
+  survival_file_analysis_survivaltime_05_period_10 <- normalize_path(
+    paste0(survival_work_dir, "/survival_file_analysis_survivaltime_05_period_10.dta")
   )
-  survival_file_analysis_path_5_10 <- normalize_path(
-    paste0(survival_work_dir, "/survival_file_analysis_5_10.dta")
+  survival_file_analysis_survivaltime_10_period_05 <- normalize_path(
+    paste0(survival_work_dir, "/survival_file_analysis_survivaltime_10_period_05.dta")
   )
-  survival_file_analysis_path_10_10 <- normalize_path(
-    paste0(survival_work_dir, "/survival_file_analysis_10_10.dta")
+  survival_file_analysis_survivaltime_10_period_10 <- normalize_path(
+    paste0(survival_work_dir, "/survival_file_analysis_survivaltime_10_period_10.dta")
   )
   
   survival_file_base_path <- normalize_path(
@@ -151,10 +151,10 @@ nordcan_survival_settings <- function(stata_exe_path) {
          "entity_table_dir", "ado_dir",
          "infile", "lifetable",
          "survival_file_analysis_path", 
-         "survival_file_analysis_path_5", 
-         "survival_file_analysis_path_10",
-         "survival_file_analysis_path_5_10", 
-         "survival_file_analysis_path_10_10",
+         "survival_file_analysis_survivaltime_05_period_05", 
+         "survival_file_analysis_survivaltime_05_period_10",
+         "survival_file_analysis_survivaltime_10_period_05", 
+         "survival_file_analysis_survivaltime_10_period_10",
          "survival_file_base_path",
          "survival_output_file_path", "pkg_stata_script_dir"))
 }

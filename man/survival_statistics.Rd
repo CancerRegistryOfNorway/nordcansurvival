@@ -9,11 +9,7 @@ survival_statistics(
   infile,
   lifetable,
   outfile = "survival_statistics",
-  estimand = "netsurvival",
-  by = c("entity", "sex", "period_5"),
-  standstrata = "agegroup_ICSS_5",
-  iweight = "weights_ICSS_5",
-  breaks = NULL
+  estimand = "netsurvival"
 )
 }
 \arguments{
