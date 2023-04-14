@@ -21,7 +21,8 @@ nordcanstat_survival <- function(
   stata_exe_path = NULL,
   subset = NULL, 
   surv_ds_nms, 
-  survival_test_sample
+  survival_test_sample,
+  survival_trace = FALSE
 ) {
  
   # message("*     start to calculate all 'survival_statistics' at ", as.character(Sys.time()))
@@ -85,7 +86,8 @@ nordcanstat_survival <- function(
   extract_define_survival_data(
     cancer_record_dataset_path = settings[["infile"]], 
     stata_exe_path = settings[["stata_exe_path"]],
-    survival_test_sample = survival_test_sample
+    survival_test_sample = survival_test_sample,
+    survival_trace = survival_trace
   )
   message("*     finished running 'extract_define_survival_data' ; time used: ", 
           gsub("elapsed.*", "", data.table::timetaken(t)))

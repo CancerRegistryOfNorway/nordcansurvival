@@ -27,7 +27,8 @@
 extract_define_survival_data <- function(
   cancer_record_dataset_path, 
   stata_exe_path = NULL,
-  survival_test_sample
+  survival_test_sample, 
+  survival_trace = FALSE
 ) {
   dbc::assert_prod_input_file_exists(
     cancer_record_dataset_path
@@ -37,52 +38,96 @@ extract_define_survival_data <- function(
   )
   
   ## make template for Stata command file
-  dofile_template <-
-    "
-    cd \"%s\"                // set current working directory
-    adopath ++ \"%s\"        // add path to Stata programs
-    adopath ++ \"%s/utils\"  // add path to Stata programs
-    adopath ++ \"%s/1\"      // add path to Stata programs
-    adopath ++ \"%s/2\"      // add path to Stata programs
-    adopath ++ \"%s\"        // survival entities look-up file
-    
-    stata_code_head, function(extract_define_survival_data)
-
-    extract_define_survival_data ,    ///
-    	incidence_data(\"%s\")          ///
-    	survival_file_base(\"%s\")      /// 
-    	survival_file_analysis(\"%s\")  /// 
-    	country(\"%s\")
-
-    stata_code_tail, function(extract_define_survival_data)  // cleaning up etc
-
-    "
   
-  
-  if (survival_test_sample) {
-    dofile_template <-
-      "
-    cd \"%s\"                // set current working directory
-    adopath ++ \"%s\"        // add path to Stata programs
-    adopath ++ \"%s/utils\"  // add path to Stata programs
-    adopath ++ \"%s/1\"      // add path to Stata programs
-    adopath ++ \"%s/2\"      // add path to Stata programs
-    adopath ++ \"%s\"        // survival entities look-up file
-    
-    stata_code_head, function(extract_define_survival_data)
-
-    extract_define_survival_data ,   ///
-    	incidence_data(\"%s\")         ///
-    	survival_file_base(\"%s\")     /// 
-    	survival_file_analysis(\"%s\") /// 
-    	country(\"%s\")                ///
-    	trace                          ///
-    	10PCsampleBreastProstateCRCfrom_2001
+  if (survival_trace) {
+    if (survival_test_sample) {
+      dofile_template <-
+        "
+      cd \"%s\"                // set current working directory
+      adopath ++ \"%s\"        // add path to Stata programs
+      adopath ++ \"%s/utils\"  // add path to Stata programs
+      adopath ++ \"%s/1\"      // add path to Stata programs
+      adopath ++ \"%s/2\"      // add path to Stata programs
+      adopath ++ \"%s\"        // survival entities look-up file
+      
+      stata_code_head, function(extract_define_survival_data)
+      
+      extract_define_survival_data ,   ///
+      	incidence_data(\"%s\")         ///
+      	survival_file_base(\"%s\")     /// 
+      	survival_file_analysis(\"%s\") /// 
+      	country(\"%s\")                ///
+      	trace                          ///
+      	10PCsampleBreastProstateCRCfrom_2001
 	
-    stata_code_tail, function(extract_define_survival_data)  // cleaning up etc
-
     "
+    } else {
+      dofile_template <-
+        "
+      cd \"%s\"                // set current working directory
+      adopath ++ \"%s\"        // add path to Stata programs
+      adopath ++ \"%s/utils\"  // add path to Stata programs
+      adopath ++ \"%s/1\"      // add path to Stata programs
+      adopath ++ \"%s/2\"      // add path to Stata programs
+      adopath ++ \"%s\"        // survival entities look-up file
+      
+      stata_code_head, function(extract_define_survival_data)
+      
+      extract_define_survival_data ,   ///
+      	incidence_data(\"%s\")         ///
+      	survival_file_base(\"%s\")     /// 
+      	survival_file_analysis(\"%s\") /// 
+      	country(\"%s\")                ///
+      	trace                          
+	
+    "
+    }
+  } else {
+    if (survival_test_sample) {
+      dofile_template <-
+        "
+      cd \"%s\"                // set current working directory
+      adopath ++ \"%s\"        // add path to Stata programs
+      adopath ++ \"%s/utils\"  // add path to Stata programs
+      adopath ++ \"%s/1\"      // add path to Stata programs
+      adopath ++ \"%s/2\"      // add path to Stata programs
+      adopath ++ \"%s\"        // survival entities look-up file
+      
+      stata_code_head, function(extract_define_survival_data)
+      
+      extract_define_survival_data ,   ///
+      	incidence_data(\"%s\")         ///
+      	survival_file_base(\"%s\")     /// 
+      	survival_file_analysis(\"%s\") /// 
+      	country(\"%s\")                ///
+      	10PCsampleBreastProstateCRCfrom_2001
+	
+    "
+    } else {
+      dofile_template <-
+        "
+      cd \"%s\"                // set current working directory
+      adopath ++ \"%s\"        // add path to Stata programs
+      adopath ++ \"%s/utils\"  // add path to Stata programs
+      adopath ++ \"%s/1\"      // add path to Stata programs
+      adopath ++ \"%s/2\"      // add path to Stata programs
+      adopath ++ \"%s\"        // survival entities look-up file
+      
+      stata_code_head, function(extract_define_survival_data)
+      
+      extract_define_survival_data ,   ///
+      	incidence_data(\"%s\")         ///
+      	survival_file_base(\"%s\")     /// 
+      	survival_file_analysis(\"%s\") /// 
+      	country(\"%s\")               
+	
+    "
+    }
   }
+
+  
+  
+  
   
   entity_df_path <- settings[["entity_df_path"]]
   

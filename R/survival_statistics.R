@@ -13,28 +13,13 @@
 #' in each strata.
 #' 
 #'
+#' @param stata_exe_path This is set in the NORDCAN settings by default
 #' @param infile path to a dataset of cancer records
 #' @param lifetable (mandatory, default by NORDCAN system)
-#' @param outfile
-#' 
-#' path where to write result file
-#' 
+#' @param outfile path where to write result file
 #' @param estimand defaults to "netsurvival" the only option so far
-#' @param stata_exe_path This is set in the NORDCAN settings by default
 #' 
-#' @param by 
 #' 
-#' names of columns in file `infile` by which to stratify
-#' results
-#' 
-#' @param standstrata
-#' 
-#' names of columns in file `infile` by which to standardise
-#' results
-#' 
-#' @param iweight
-#' 
-#' name of weight column in file `infile`
 #' 
 #' @return survival analysis output in csv and dta format.
 #' 
@@ -138,7 +123,6 @@ survival_statistics ,	  /// Stata cmd defined in survival_statistics.ado
   by(%s)                ///
   breaks(%s)            
 
-stata_code_tail, function(survival_statistics)  // cleaning up etc
 
 "
     ## build do file based on 'dofile_template';
@@ -177,7 +161,6 @@ survival_statistics ,	  /// Stata cmd defined in survival_statistics.ado
   iweight(%s)           ///
   breaks(%s)            
 
-stata_code_tail, function(survival_statistics)  // cleaning up etc
 
 "
     

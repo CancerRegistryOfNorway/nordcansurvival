@@ -10,7 +10,8 @@ nordcanstat_survival(
   stata_exe_path = NULL,
   subset = NULL,
   surv_ds_nms,
-  survival_test_sample
+  survival_test_sample,
+  survival_trace = FALSE
 )
 }
 \arguments{

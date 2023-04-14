@@ -7,7 +7,8 @@
 extract_define_survival_data(
   cancer_record_dataset_path,
   stata_exe_path = NULL,
-  survival_test_sample
+  survival_test_sample,
+  survival_trace = FALSE
 )
 }
 \arguments{

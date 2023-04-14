@@ -22,14 +22,6 @@ survival_statistics(
 \item{outfile}{path where to write result file}
 
 \item{estimand}{defaults to "netsurvival" the only option so far}
-
-\item{by}{names of columns in file `infile` by which to stratify
-results}
-
-\item{standstrata}{names of columns in file `infile` by which to standardise
-results}
-
-\item{iweight}{name of weight column in file `infile`}
 }
 \value{
 survival analysis output in csv and dta format.
