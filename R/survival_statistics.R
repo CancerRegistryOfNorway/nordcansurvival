@@ -90,7 +90,12 @@ survival_statistics <- function(
     standstrata <- "agegroup_ICSS_3"
   }
   if (survival_type == "agespecific") {
-    by <-  c(by, "agegroup_ICSS_5_str")
+    if (period_based == "05") {
+      by <-  c(by, "agegroup_ICSS_5_str")
+    } else if (period_based == "10") {
+      by <-  c(by, "agegroup_ICSS_3_str")
+    }
+    
   }
   if (survival_time == "05") {
     # breaks <- "0(.08333333)5.08333333"
