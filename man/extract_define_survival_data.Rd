@@ -4,7 +4,12 @@
 \alias{extract_define_survival_data}
 \title{extract_define_survival_data}
 \usage{
-extract_define_survival_data(cancer_record_dataset_path, stata_exe_path = NULL)
+extract_define_survival_data(
+  cancer_record_dataset_path,
+  stata_exe_path = NULL,
+  survival_test_sample,
+  survival_trace = FALSE
+)
 }
 \arguments{
 \item{cancer_record_dataset_path}{`[character]` (mandatory, no default)}
