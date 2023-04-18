@@ -1,4 +1,4 @@
-*! version 1.0.6  2023-04-01  
+*! version 1.0.7  2023-04-18  
 
 { // main survival_statistics  
 
@@ -353,65 +353,18 @@ foreach v of varlist cns locns upcns {
 
 local outfile = subinstr("`outfile'", ".dta", ".csv", 1 )
 
+capture confirm variable n0 
+
+if ( _rc==0 ) {
+	
+	keep if n0 > 30
+	drop n0 n
+}
+
 export delimited using "`outfile'" , /// std encoding UTF-8
 	delimiter(";") ///
 	replace
-	
-/*
-	
-capture {
-	
-	confirm file survival_statistics_period_5_dataset.csv
-	confirm file survival_statistics_period_10_dataset.csv
-	confirm file survival_statistics_period_5_10_dataset.csv	
-	confirm file survival_statistics_period_10_10_dataset.csv
-}
 
-if ( _rc == 0 ) {
-	
-	foreach p of numlist 5 10 {
-
-	tempfile `p'
-	
-	import delimited ///
-		using "survival_statistics_period_`p'_10_dataset.csv" , ///
-			delim(";") encoding(UTF-8) clear
-			
-	keep if inlist(end,10)	
-	save "``p''"	
-	
-	import delimited ///
-		using "survival_statistics_period_`p'_dataset.csv" , ///
-			delim(";") encoding(UTF-8) clear
-	
-	keep if inlist(end,1,5)	
-	append using "``p''"
-
-	sort entity_display_order period* sex end
-	
-	replace metadata = "" if end == 10
-		
-	export delimited ///
-		using "survival_statistics_period_`p'_dataset.csv" , ///
-			delim(";")  nolabel replace 
-}
-
-capture {
-	
-	confirm file survival_statistics_period_5_dataset.csv
-	confirm file survival_statistics_period_10_dataset.csv	
-}	
-
-if (_rc == 0 ) { 
-
-	capture erase "survival_statistics_period_5_10_dataset.csv"	
-	capture erase "survival_statistics_period_10_10_dataset.csv"
-}	
-
-}
-
-*/
-	
 end  // nc_rs_format_export
 
 }
