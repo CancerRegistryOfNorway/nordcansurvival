@@ -18,23 +18,26 @@ to a dataset of cancer records}
 \item{stata_exe_path}{This is set in the NORDCAN settings by default}
 
 \item{survival_test_sample}{Logical, if set to TRUE, the function will extract
-only a sample of the input cancer record dataset, which contains only 
+only a sample of the input cancer record dataset, which contains  
 10 percent of Breast, Prostate and colorectal cancers start from 2001.}
 
 \item{survival_trace}{Logical, if set to TRUE, run Stata in debug mode.}
 }
 \value{
 It will generate four dta files for further survival analysis: 
-    survival_file_analysis_survivaltime_05_period_05.dta
-    survival_file_analysis_survivaltime_05_period_10.dta
-    survival_file_analysis_survivaltime_10_period_05.dta
-    survival_file_analysis_survivaltime_10_period_10.dta
+  \itemize{
+    \item \emph{survival_file_analysis_survivaltime_05_period_05.dta}
+    \item \emph{survival_file_analysis_survivaltime_05_period_10.dta}
+    \item \emph{survival_file_analysis_survivaltime_10_period_05.dta}
+    \item \emph{survival_file_analysis_survivaltime_10_period_10.dta}
+  }
+   add additional files: 
+  \itemize{
+    \item \emph{survival_file_base.dta }
+    \item \emph{survival_file_analysis.dta}
+   }
 
-    add additional files: 
-    survival_file_base.dta 
-    survival_file_analysis.dta
-
-Detailed documentation is available at https://github.com/CancerRegistryOf Norway/NORDCAN/wiki/nordcansurvival
+Detailed documentation is available at \url{https://github.com/CancerRegistryOf Norway/NORDCAN/wiki/nordcansurvival}
 }
 \description{
 Run a Stata script on a dataset saved on-disk to prepare datasets for analysis 

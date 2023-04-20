@@ -20,26 +20,27 @@ survival_statistics(
 \item{lifetable}{(mandatory, default by NORDCAN system)}
 
 \item{outfile}{path where to write result file. The outfile must be a set of 
-    c("survival_statistics_standardised_survivaltime_05_period_05",
-    "survival_statistics_standardised_survivaltime_05_period_10",
-    "survival_statistics_standardised_survivaltime_10_period_05",
-    "survival_statistics_standardised_survivaltime_10_period_10",
-    "survival_statistics_agespecific_survivaltime_05_period_05",
-    "survival_statistics_agespecific_survivaltime_05_period_10",
-    "survival_statistics_agespecific_survivaltime_10_period_05",
-    "survival_statistics_agespecific_survivaltime_10_period_10"), 
+\itemize{
+  \item \emph{survival_statistics_standardised_survivaltime_05_period_05}
+  \item \emph{survival_statistics_standardised_survivaltime_05_period_10}
+  \item \emph{survival_statistics_standardised_survivaltime_10_period_05}
+  \item \emph{survival_statistics_standardised_survivaltime_10_period_10}
+  \item \emph{survival_statistics_agespecific_survivaltime_05_period_05}
+  \item \emph{survival_statistics_agespecific_survivaltime_05_period_10}
+  \item \emph{survival_statistics_agespecific_survivaltime_10_period_05}
+  \item \emph{survival_statistics_agespecific_survivaltime_10_period_10} 
+}
+  and it was set up by the option \emph{output_objects} of \emph{nordcanepistats::nordcan_statistics_tables}}
 
-    and it was set up by the "output_objects" of "nordcanepistats::nordcan_statistics_tables"}
-
-\item{estimand}{defaults to "netsurvival" the only option so far}
+\item{estimand}{defaults to \emph{netsurvival} the only option so far}
 }
 \value{
-survival analysis output in .csv (UTF-8) and .dta format.
+survival analysis output in \emph{.csv} (UTF-8) and \emph{.dta} format.
 }
 \description{
 Provides non-parametric estimate of marginal relative survival, which under assumptions can be 
 interpreted as marginal net survival. survival_statistics() is calling the Stata stnet program, 
 using the Pohar Perme estimator with Brenner weighting to estimate age-standardized net survival.
 
-Detailed documentation is available at https://github.com/CancerRegistryOf Norway/NORDCAN/wiki/nordcansurvival
+Detailed documentation is available at \url{https://github.com/CancerRegistryOfNorway/NORDCAN/wiki/nordcansurvival}
 }

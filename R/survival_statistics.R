@@ -4,28 +4,29 @@
 #' interpreted as marginal net survival. survival_statistics() is calling the Stata stnet program, 
 #' using the Pohar Perme estimator with Brenner weighting to estimate age-standardized net survival.
 #' 
-#' Detailed documentation is available at https://github.com/CancerRegistryOf Norway/NORDCAN/wiki/nordcansurvival
+#' Detailed documentation is available at \url{https://github.com/CancerRegistryOfNorway/NORDCAN/wiki/nordcansurvival}
 #'
 #' @param stata_exe_path This is set in the NORDCAN settings by default
 #' @param infile path to a dataset of cancer records
 #' @param lifetable (mandatory, default by NORDCAN system)
 #' @param outfile path where to write result file. The outfile must be a set of 
-#'     c("survival_statistics_standardised_survivaltime_05_period_05",
-#'     "survival_statistics_standardised_survivaltime_05_period_10",
-#'     "survival_statistics_standardised_survivaltime_10_period_05",
-#'     "survival_statistics_standardised_survivaltime_10_period_10",
-#'     "survival_statistics_agespecific_survivaltime_05_period_05",
-#'     "survival_statistics_agespecific_survivaltime_05_period_10",
-#'     "survival_statistics_agespecific_survivaltime_10_period_05",
-#'     "survival_statistics_agespecific_survivaltime_10_period_10"), 
-#' 
-#'     and it was set up by the "output_objects" of "nordcanepistats::nordcan_statistics_tables"
+#'   \itemize{
+#'     \item \emph{survival_statistics_standardised_survivaltime_05_period_05}
+#'     \item \emph{survival_statistics_standardised_survivaltime_05_period_10}
+#'     \item \emph{survival_statistics_standardised_survivaltime_10_period_05}
+#'     \item \emph{survival_statistics_standardised_survivaltime_10_period_10}
+#'     \item \emph{survival_statistics_agespecific_survivaltime_05_period_05}
+#'     \item \emph{survival_statistics_agespecific_survivaltime_05_period_10}
+#'     \item \emph{survival_statistics_agespecific_survivaltime_10_period_05}
+#'     \item \emph{survival_statistics_agespecific_survivaltime_10_period_10} 
+#'   }
+#'     and it was set up by the option \emph{output_objects} of \emph{nordcanepistats::nordcan_statistics_tables}
 
-#' @param estimand defaults to "netsurvival" the only option so far
+#' @param estimand defaults to \emph{netsurvival} the only option so far
 #' 
 #' 
 #' 
-#' @return survival analysis output in .csv (UTF-8) and .dta format.
+#' @return survival analysis output in \emph{.csv} (UTF-8) and \emph{.dta} format.
 #'
 #'
 #' @export
