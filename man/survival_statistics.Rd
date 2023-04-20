@@ -19,46 +19,27 @@ survival_statistics(
 
 \item{lifetable}{(mandatory, default by NORDCAN system)}
 
-\item{outfile}{path where to write result file}
+\item{outfile}{path where to write result file. The outfile must be a set of 
+    c("survival_statistics_standardised_survivaltime_05_period_05",
+    "survival_statistics_standardised_survivaltime_05_period_10",
+    "survival_statistics_standardised_survivaltime_10_period_05",
+    "survival_statistics_standardised_survivaltime_10_period_10",
+    "survival_statistics_agespecific_survivaltime_05_period_05",
+    "survival_statistics_agespecific_survivaltime_05_period_10",
+    "survival_statistics_agespecific_survivaltime_10_period_05",
+    "survival_statistics_agespecific_survivaltime_10_period_10"), 
+
+    and it was set up by the "output_objects" of "nordcanepistats::nordcan_statistics_tables"}
 
 \item{estimand}{defaults to "netsurvival" the only option so far}
 }
 \value{
-survival analysis output in csv and dta format.
-
-library(nordcansurvival)
-infile <-  paste0(system.file(package = "nordcansurvival"), 
-                  "/Stata/demo/NCS_NO_anonymous_example_data.dta")
-lifetable <- paste0(system.file(package = "nordcansurvival"), 
-                    "/Stata/demo/NO_2018_lifetable.dta")
-
-
-nordcancore::set_global_nordcan_settings(
-  work_dir = getwd(),
-  participant_name = "Norway",
-  first_year_incidence = 1953L,
-  first_year_mortality = 1953L,
-  first_year_region = 1953L,
-  last_year_incidence = 2018L,
-  last_year_mortality = 2018L,
-  last_year_survival = 2018L
-)
-
-
-survival_statistics(infile  = infile , 
-                   lifetable = lifetable, 
-                   stata_exe_path = "S:/Prog64/STATA/Stata16MP/StataMP-64.exe")
+survival analysis output in .csv (UTF-8) and .dta format.
 }
 \description{
 Provides non-parametric estimate of marginal relative survival, which under assumptions can be 
 interpreted as marginal net survival. survival_statistics() is calling the Stata stnet program, 
 using the Pohar Perme estimator with Brenner weighting to estimate age-standardized net survival.
 
-The beta version provides 5-year survival only.
-
-For some entities estimation is not possible because there are no data in some age stratum used
-for weighting. 
-
-In the beta version there is no lower limit to data, execpt there must be at least one observation 
-in each strata.
+Detailed documentation is available at https://github.com/CancerRegistryOf Norway/NORDCAN/wiki/nordcansurvival
 }

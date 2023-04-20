@@ -12,22 +12,33 @@ extract_define_survival_data(
 )
 }
 \arguments{
-\item{cancer_record_dataset_path}{`[character]` (mandatory, no default)}
+\item{cancer_record_dataset_path}{`[character]` (mandatory, no default) path 
+to a dataset of cancer records}
 
-\item{stata_exe_path}{This is set in the NORDCAN settings by default
+\item{stata_exe_path}{This is set in the NORDCAN settings by default}
 
-path to a dataset of cancer records}
+\item{survival_test_sample}{Logical, if set to TRUE, the function will extract
+only a sample of the input cancer record dataset, which contains only 
+10 percent of Breast, Prostate and colorectal cancers start from 2001.}
+
+\item{survival_trace}{Logical, if set to TRUE, run Stata in debug mode.}
 }
 \value{
-Two dataset for computing survival analysis.
+It will generate four dta files for further survival analysis: 
+    survival_file_analysis_survivaltime_05_period_05.dta
+    survival_file_analysis_survivaltime_05_period_10.dta
+    survival_file_analysis_survivaltime_10_period_05.dta
+    survival_file_analysis_survivaltime_10_period_10.dta
+
+    add additional files: 
+    survival_file_base.dta 
+    survival_file_analysis.dta
+
+Detailed documentation is available at https://github.com/CancerRegistryOf Norway/NORDCAN/wiki/nordcansurvival
 }
 \description{
-Run a Stata script on a dataset saved on-disk to prepare a two dataset of
+Run a Stata script on a dataset saved on-disk to prepare datasets for analysis 
 for computing survival.
-
-survival_file_base.dta 
-
-survival_file_analysis.dta
 
 survival_file_base.dta  includes all potential records, all relevant variables including strings
 

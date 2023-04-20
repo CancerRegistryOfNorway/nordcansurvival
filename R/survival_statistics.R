@@ -10,16 +10,16 @@
 #' @param infile path to a dataset of cancer records
 #' @param lifetable (mandatory, default by NORDCAN system)
 #' @param outfile path where to write result file. The outfile must be a set of 
-#' c("survival_statistics_standardised_survivaltime_05_period_05",
-"survival_statistics_standardised_survivaltime_05_period_10",
-"survival_statistics_standardised_survivaltime_10_period_05",
-"survival_statistics_standardised_survivaltime_10_period_10",
-
-"survival_statistics_agespecific_survivaltime_05_period_05",
-"survival_statistics_agespecific_survivaltime_05_period_10",
-"survival_statistics_agespecific_survivaltime_10_period_05",
-"survival_statistics_agespecific_survivaltime_10_period_10"), 
-and it was set up by the "output_objects" of "nordcanepistats::nordcan_statistics_tables"
+#'     c("survival_statistics_standardised_survivaltime_05_period_05",
+#'     "survival_statistics_standardised_survivaltime_05_period_10",
+#'     "survival_statistics_standardised_survivaltime_10_period_05",
+#'     "survival_statistics_standardised_survivaltime_10_period_10",
+#'     "survival_statistics_agespecific_survivaltime_05_period_05",
+#'     "survival_statistics_agespecific_survivaltime_05_period_10",
+#'     "survival_statistics_agespecific_survivaltime_10_period_05",
+#'     "survival_statistics_agespecific_survivaltime_10_period_10"), 
+#' 
+#'     and it was set up by the "output_objects" of "nordcanepistats::nordcan_statistics_tables"
 
 #' @param estimand defaults to "netsurvival" the only option so far
 #' 
