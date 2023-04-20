@@ -1,9 +1,0 @@
-﻿TERMS OF USE:
-
-The anonymous example data [NCS_NO_anonymous_example_data.dta] is provided from Cancer Registry of Norway, who has the ownership to the data, for limited use within the NORDCAN survival package only.
-
-The anonymous example data [NCS_NO_anonymous_example_data.dta] SHOULD NOT be copied, changed, redistributed, or used in any settings other than as provided by the NORDCAN survival package.
-
-The example data are anonymous, which means that the data are rendered anonymous in such a manner that the data subject no longer can be identified. Thus, the processing of these data falls outside the scope of the GDPR.
-
-Any questions about these data should be directed to data@kreftregisteret.no
