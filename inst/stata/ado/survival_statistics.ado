@@ -21,6 +21,8 @@ qui {
 set type double
 
 clear
+
+local outfile = regexr("`outfile'", "\....$","" ) // strip of .ext
 	
 ********************************************************************************
 findfile NC_survival_entity_table.dta
@@ -96,7 +98,9 @@ if ("`estimand'" == "netsurvival") {
 timer off 1
 
 noi stata_code_tail , function(survival_statistics) timer(1)
-noi confirm file "`outfile'"  
+
+noi confirm file "`outfile'.dta"  
+noi confirm file "`outfile'.csv" 
 
 } // qui
 
