@@ -11,10 +11,10 @@
 #' @param lifetable (mandatory, default by NORDCAN system)
 #' @param outfile path where to write result file. The outfile must be a set of 
 #'   \itemize{
-#'     \item \emph{survival_statistics_standardised_survivaltime_05_period_05}
-#'     \item \emph{survival_statistics_standardised_survivaltime_05_period_10}
-#'     \item \emph{survival_statistics_standardised_survivaltime_10_period_05}
-#'     \item \emph{survival_statistics_standardised_survivaltime_10_period_10}
+#'     \item \emph{survival_statistics_agestandardised_survivaltime_05_period_05}
+#'     \item \emph{survival_statistics_agestandardised_survivaltime_05_period_10}
+#'     \item \emph{survival_statistics_agestandardised_survivaltime_10_period_05}
+#'     \item \emph{survival_statistics_agestandardised_survivaltime_10_period_10}
 #'     \item \emph{survival_statistics_agespecific_survivaltime_05_period_05}
 #'     \item \emph{survival_statistics_agespecific_survivaltime_05_period_10}
 #'     \item \emph{survival_statistics_agespecific_survivaltime_10_period_05}
@@ -56,7 +56,7 @@ survival_statistics <- function(
   survival_work_dir <- settings[["survival_work_dir"]]
   ado_dir <- settings[["ado_dir"]]
   ##
-  survival_type <- ifelse(grepl("standardised",    outfile), "standardised", "agespecific")
+  survival_type <- ifelse(grepl("agestandardised",    outfile), "agestandardised", "agespecific")
   survival_time <- ifelse(grepl("survivaltime_05", outfile), "05", "10")
   period_based  <- ifelse(grepl("period_05",       outfile), "05", "10")
   by = c("entity", "sex")

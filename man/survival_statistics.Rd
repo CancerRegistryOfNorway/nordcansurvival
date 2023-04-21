@@ -21,10 +21,10 @@ survival_statistics(
 
 \item{outfile}{path where to write result file. The outfile must be a set of 
 \itemize{
-  \item \emph{survival_statistics_standardised_survivaltime_05_period_05}
-  \item \emph{survival_statistics_standardised_survivaltime_05_period_10}
-  \item \emph{survival_statistics_standardised_survivaltime_10_period_05}
-  \item \emph{survival_statistics_standardised_survivaltime_10_period_10}
+  \item \emph{survival_statistics_agestandardised_survivaltime_05_period_05}
+  \item \emph{survival_statistics_agestandardised_survivaltime_05_period_10}
+  \item \emph{survival_statistics_agestandardised_survivaltime_10_period_05}
+  \item \emph{survival_statistics_agestandardised_survivaltime_10_period_10}
   \item \emph{survival_statistics_agespecific_survivaltime_05_period_05}
   \item \emph{survival_statistics_agespecific_survivaltime_05_period_10}
   \item \emph{survival_statistics_agespecific_survivaltime_10_period_05}
