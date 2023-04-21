@@ -365,6 +365,8 @@ if ( _rc==0 ) {
 	drop n0 n
 }
 
+capture drop start
+
 export delimited using "`outfile'" , /// std encoding UTF-8
 	delimiter(";") ///
 	replace
