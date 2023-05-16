@@ -23,7 +23,7 @@
 #' 
 #' @param survival_trace Logical, if set to TRUE, run Stata in debug mode. 
 #' 
-#' 
+#' @export
 #' 
 #' @return It will generate four dta files for further survival analysis: 
 #'   \itemize{
