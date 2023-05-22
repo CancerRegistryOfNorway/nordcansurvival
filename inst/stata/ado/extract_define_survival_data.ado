@@ -1,4 +1,4 @@
-*! version 1.0.6  2023-04-01   
+*! version 1.0.7  2023-05-22   
 { /* define extract_define_survival_data */
 
 capt prog drop extract_define_survival_data
@@ -11,7 +11,8 @@ syntax ,                              ///
 	[survival_entities(string)]       ///
 	[country(string)]                 ///
 	[trace]                           ///
-	[10PCsampleBreastProstateCRCfrom_2001]
+	[10PCsampleBreastProstateCRCfrom_2001] ///
+	[dev] // tabulations, only for QA in developement
 	
 set type double
 
@@ -880,8 +881,10 @@ foreach v of varlist `agegroup_ICSS' {
 	replace  agegroup_ICSS_5_str = `str' if !mi(`v')
 }
 
-noi table agegroup_ICSS_5_str agegroup , nototal
-
+if ( "`dev'" == "dev" ) {
+	
+	noi table agegroup_ICSS_5_str agegroup , nototal
+}
 
 ********************************************************************************
 * defining 3-level age-groups
@@ -911,7 +914,10 @@ label define agegroup_ICSS_3_1
 
 lab val agegroup_ICSS_3_1 agegroup_ICSS_3_1 
 
-table agegroup_ICSS_C agegroup_ICSS_3_1 , nototal  
+if ( "`dev'" == "dev" ) {
+
+	table agegroup_ICSS_C agegroup_ICSS_3_1 , nototal  
+}
 	
 * 2. ICSS 2.i  Little age dependency 
 
@@ -932,8 +938,11 @@ label define agegroup_ICSS_3_2_1
 
 lab val agegroup_ICSS_3_2_1 agegroup_ICSS_3_2_1
 
-table agegroup_ICSS_A agegroup_ICSS_3_2_1, nototal 	
+if ( "`dev'" == "dev" ) {
 	
+	table agegroup_ICSS_A agegroup_ICSS_3_2_1, nototal 	
+}
+
 * 2. ICSS 2.ii  Little age dependency: 
 
 	* 190 Cervix uteri
@@ -957,8 +966,12 @@ label define agegroup_ICSS_3_2_2
 
 lab val agegroup_ICSS_3_2_2 agegroup_ICSS_3_2_2
 
-table agegroup_ICSS_C agegroup_ICSS_3_2_2, nototal	// ?? agegroup_ICSS_C  
+if ( "`dev'" == "dev" ) {
 	
+	table agegroup_ICSS_C agegroup_ICSS_3_2_2, nototal	 
+
+}	
+
 * 3. ICSS 3.i Young adults. 
 	
 	* 250 Testis
@@ -979,7 +992,10 @@ label define agegroup_ICSS_3_3_1
 
 lab val agegroup_ICSS_3_3_1 agegroup_ICSS_3_3_1
 
-table agegroup_ICSS_A agegroup_ICSS_3_3_1, nototal 	
+if ( "`dev'" == "dev" ) {
+	
+	table agegroup_ICSS_A agegroup_ICSS_3_3_1, nototal 	
+}
 
 * 3. ICSS 3.ii Young adults.
 
@@ -1000,7 +1016,10 @@ label define agegroup_ICSS_3_3_2
 
 lab val agegroup_ICSS_3_3_2 agegroup_ICSS_3_3_2
 
-table agegroup_ICSS_B agegroup_ICSS_3_3_2, nototal 	
+if ( "`dev'" == "dev" ) {
+	
+	table agegroup_ICSS_B agegroup_ICSS_3_3_2, nototal 	
+}
 
 gen byte agegroup_ICSS_3 = .
 gen str5 agegroup_ICSS_3_str = ""
