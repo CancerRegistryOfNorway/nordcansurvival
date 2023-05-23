@@ -126,23 +126,48 @@ qui { // ad-hoc new naming
  
 	confirm file survival_file_analysis_5.dta
 	
-	shell move survival_file_analysis_5.dta ///
-	           survival_file_analysis_survivaltime_05_period_05.dta
+	copy survival_file_analysis_5.dta ///
+	           survival_file_analysis_survivaltime_05_period_05.dta ///
+			   , replace 
+			   			   
+	confirm file survival_file_analysis_survivaltime_05_period_05.dta
+	
+	erase survival_file_analysis_5.dta
+	
+	****************************************************************************
 	
 	confirm file survival_file_analysis_10.dta
 	
-	shell move survival_file_analysis_10.dta ///
-	           survival_file_analysis_survivaltime_05_period_10.dta
+	copy survival_file_analysis_10.dta ///
+	           survival_file_analysis_survivaltime_05_period_10.dta ///
+			    , replace 
+			   
+	confirm file survival_file_analysis_survivaltime_05_period_10.dta
+	
+	erase survival_file_analysis_10.dta
+	
+	****************************************************************************
+	
 	
 	confirm file survival_file_analysis_5_10.dta
 	
-	shell move survival_file_analysis_5_10.dta ///
-	           survival_file_analysis_survivaltime_10_period_05.dta
+	copy survival_file_analysis_5_10.dta ///
+	           survival_file_analysis_survivaltime_10_period_05.dta ///
+			   , replace
 	
-	confirm file survival_file_analysis_10_10.dta 
+	confirm file survival_file_analysis_survivaltime_10_period_05.dta
 	
-	shell move survival_file_analysis_10_10.dta  ///
-	survival_file_analysis_survivaltime_10_period_10.dta
+	erase survival_file_analysis_5_10.dta
+
+	****************************************************************************
+	
+	confirm file survival_file_analysis_10_10.dta
+	
+	copy survival_file_analysis_10_10.dta  ///
+		survival_file_analysis_survivaltime_10_period_10.dta ///
+		, replace
+		
+	erase survival_file_analysis_10_10.dta	
 }
 
 ********************************************************************************
